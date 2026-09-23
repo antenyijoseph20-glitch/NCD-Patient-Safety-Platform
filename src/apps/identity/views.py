@@ -1,3 +1,4 @@
+from .forms import DemoForm
 from django.shortcuts import render
 
 
@@ -19,3 +20,11 @@ def case_demo(request, case_id):
     }
 
     return render(request, "case_demo.html", context)
+def demo_form(request):
+    form = DemoForm()
+
+    context = {
+        "form": form,
+    }
+
+    return render(request, "demo_form.html", context)
