@@ -1,8 +1,9 @@
+from django.contrib.auth import get_user_model
+from django.db import IntegrityError
 from django.db.models.deletion import ProtectedError
 from django.test import TestCase
 
-from .models import Facility, Organization
-
+from .models import Facility, HealthcareProfessional, Organization
 
 class OrganizationModelTests(TestCase):
     def test_organization_is_created_with_default_status(self):
@@ -86,3 +87,94 @@ class FacilityModelTests(TestCase):
 
         with self.assertRaises(ProtectedError):
             self.organization.delete()
+
+class HealthcareProfessionalModelTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="doctor1",
+            first_name="John",
+            last_name="Doe",
+            email="doctor@example.com",
+            password="test-password-123",
+        )
+
+    def test_healthcare_professional_belongs_to_user(self):
+        professional = HealthcareProfessional.objects.create(
+            user=self.user,
+            profession=HealthcareProfessional.Profession.DOCTOR,
+        )
+
+        self.assertEqual(professional.user, self.user)
+
+    def test_healthcare_professional_gets_public_id(self):
+        professional = HealthcareProfessional.objects.create(
+            user=self.user,
+            profession=HealthcareProfessional.Profession.DOCTOR,
+        )
+
+        self.assertIsNotNone(professional.public_id)
+
+    def test_healthcare_professional_has_default_license_status(self):
+        professional = HealthcareProfessional.objects.create(
+            user=self.user,
+            profession=HealthcareProfessional.Profession.DOCTOR,
+        )
+
+        self.assertEqual(
+            professional.license_status,
+            HealthcareProfessional.LicenseStatus.PENDING_VERIFICATION,
+        )
+
+    def test_healthcare_professional_has_default_status(self):
+        professional = HealthcareProfessional.objects.create(
+            user=self.user,
+            profession=HealthcareProfessional.Profession.DOCTOR,
+        )
+
+        self.assertEqual(
+            professional.status,
+            HealthcareProfessional.Status.PENDING_VERIFICATION,
+        )
+
+    def test_healthcare_professional_has_profession(self):
+        professional = HealthcareProfessional.objects.create(
+            user=self.user,
+            profession=HealthcareProfessional.Profession.NURSE,
+        )
+
+        self.assertEqual(
+            professional.profession,
+            HealthcareProfessional.Profession.NURSE,
+        )
+
+    def test_user_can_have_one_healthcare_professional_profile(self):
+        professional = HealthcareProfessional.objects.create(
+            user=self.user,
+            profession=HealthcareProfessional.Profession.DOCTOR,
+        )
+
+        self.assertEqual(
+            self.user.healthcare_professional,
+            professional,
+        )
+
+    def test_user_cannot_have_two_healthcare_professional_profiles(self):
+        HealthcareProfessional.objects.create(
+            user=self.user,
+            profession=HealthcareProfessional.Profession.DOCTOR,
+        )
+
+        with self.assertRaises(IntegrityError):
+            HealthcareProfessional.objects.create(
+                user=self.user,
+                profession=HealthcareProfessional.Profession.NURSE,
+            )
+
+    def test_user_cannot_be_deleted_when_professional_profile_exists(self):
+        HealthcareProfessional.objects.create(
+            user=self.user,
+            profession=HealthcareProfessional.Profession.DOCTOR,
+        )
+
+        with self.assertRaises(ProtectedError):
+            self.user.delete()
