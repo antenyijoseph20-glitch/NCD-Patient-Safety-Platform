@@ -99,3 +99,93 @@ class Organization(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Facility(models.Model):
+    class FacilityType(models.TextChoices):
+        HOSPITAL = "HOSPITAL", "Hospital"
+        PRIMARY_HEALTH_CENTRE = (
+            "PRIMARY_HEALTH_CENTRE",
+            "Primary health centre",
+        )
+        CLINIC = "CLINIC", "Clinic"
+        SPECIALIST_CENTRE = (
+            "SPECIALIST_CENTRE",
+            "Specialist centre",
+        )
+        DIAGNOSTIC_CENTRE = (
+            "DIAGNOSTIC_CENTRE",
+            "Diagnostic centre",
+        )
+        PHARMACY = "PHARMACY", "Pharmacy"
+        OTHER = "OTHER", "Other"
+
+    class Status(models.TextChoices):
+        PENDING_VERIFICATION = (
+            "PENDING_VERIFICATION",
+            "Pending verification",
+        )
+        ACTIVE = "ACTIVE", "Active"
+        SUSPENDED = "SUSPENDED", "Suspended"
+        INACTIVE = "INACTIVE", "Inactive"
+
+    id = models.BigAutoField(primary_key=True)
+
+    public_id = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False,
+    )
+
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.PROTECT,
+        related_name="facilities",
+    )
+
+    name = models.CharField(max_length=255)
+
+    facility_type = models.CharField(
+        max_length=50,
+        choices=FacilityType.choices,
+    )
+
+    status = models.CharField(
+        max_length=30,
+        choices=Status.choices,
+        default=Status.PENDING_VERIFICATION,
+    )
+
+    email = models.EmailField(
+        max_length=254,
+        null=True,
+        blank=True,
+    )
+
+    phone = models.CharField(
+        max_length=50,
+        null=True,
+        blank=True,
+    )
+
+    address = models.TextField(
+        null=True,
+        blank=True,
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "facility"
+        ordering = ["name", "id"]
+        indexes = [
+            models.Index(fields=["organization"]),
+            models.Index(fields=["status"]),
+            models.Index(fields=["facility_type"]),
+            models.Index(fields=["name"]),
+        ]
+
+    def __str__(self):
+        return self.name
