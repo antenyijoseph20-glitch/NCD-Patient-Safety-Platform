@@ -4,7 +4,7 @@ import uuid
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
-from .models import Patient
+from .models import Patient, PatientContact
 
 
 class PatientModelTests(TestCase):
@@ -56,3 +56,51 @@ class PatientModelTests(TestCase):
         user.delete()
         patient.refresh_from_db()
         self.assertIsNone(patient.user)
+
+
+class PatientContactModelTests(TestCase):
+    def setUp(self):
+        self.patient = Patient.objects.create(
+            first_name="Emeka",
+            last_name="Okonkwo",
+            date_of_birth=date(1990, 8, 20),
+            gender=Patient.Gender.MALE,
+        )
+
+    def test_patient_contact_creation(self):
+        contact = PatientContact.objects.create(
+            patient=self.patient,
+            contact_type=PatientContact.ContactType.PHONE,
+            value="+2348098765432",
+            is_primary=True,
+        )
+
+        self.assertEqual(contact.patient, self.patient)
+        self.assertTrue(contact.is_primary)
+        self.assertIsNotNone(contact.public_id)
+
+    def test_patient_can_have_multiple_contacts(self):
+        PatientContact.objects.create(
+            patient=self.patient,
+            contact_type=PatientContact.ContactType.PHONE,
+            value="+2348098765432",
+            is_primary=True,
+        )
+        PatientContact.objects.create(
+            patient=self.patient,
+            contact_type=PatientContact.ContactType.EMAIL,
+            value="emeka.okonkwo@example.org",
+        )
+
+        self.assertEqual(self.patient.contacts.count(), 2)
+
+    def test_patient_deletion_cascades_to_contacts(self):
+        PatientContact.objects.create(
+            patient=self.patient,
+            contact_type=PatientContact.ContactType.PHONE,
+            value="+2348098765432",
+        )
+        self.assertEqual(PatientContact.objects.count(), 1)
+
+        self.patient.delete()
+        self.assertEqual(PatientContact.objects.count(), 0)

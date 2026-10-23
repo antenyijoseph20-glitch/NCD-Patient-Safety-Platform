@@ -113,3 +113,49 @@ class Patient(models.Model):
         if self.other_names:
             return f"{self.first_name} {self.other_names} {self.last_name}"
         return f"{self.first_name} {self.last_name}"
+
+
+class PatientContact(models.Model):
+    class ContactType(models.TextChoices):
+        PHONE = "PHONE", "Phone number"
+        EMAIL = "EMAIL", "Email address"
+        PHYSICAL_ADDRESS = "PHYSICAL_ADDRESS", "Physical address"
+        NEXT_OF_KIN = "NEXT_OF_KIN", "Next of kin"
+        EMERGENCY = "EMERGENCY", "Emergency contact"
+
+    id = models.BigAutoField(primary_key=True)
+
+    public_id = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False,
+    )
+
+    patient = models.ForeignKey(
+        Patient,
+        on_delete=models.CASCADE,
+        related_name="contacts",
+    )
+
+    contact_type = models.CharField(
+        max_length=30,
+        choices=ContactType.choices,
+    )
+
+    value = models.CharField(max_length=255)
+    description = models.CharField(max_length=255, blank=True, default="")
+    is_primary = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "patient_contact"
+        ordering = ["patient", "-is_primary", "id"]
+        indexes = [
+            models.Index(fields=["patient", "contact_type"]),
+            models.Index(fields=["patient", "is_primary"]),
+        ]
+
+    def __str__(self):
+        return f"{self.patient} - {self.contact_type}: {self.value}"
