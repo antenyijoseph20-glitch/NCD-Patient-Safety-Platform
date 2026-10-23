@@ -63,3 +63,65 @@ class ClinicalNeed(models.Model):
 
     def __str__(self):
         return f"{self.patient}: {self.condition_name} ({self.severity})"
+
+
+class ClinicalVerification(models.Model):
+    class Status(models.TextChoices):
+        PENDING = "PENDING", "Pending review"
+        VERIFIED = "VERIFIED", "Verified"
+        REJECTED = "REJECTED", "Rejected"
+        REQUIRES_FURTHER_TESTS = (
+            "REQUIRES_FURTHER_TESTS",
+            "Requires further tests",
+        )
+
+    id = models.BigAutoField(primary_key=True)
+
+    public_id = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False,
+    )
+
+    clinical_need = models.ForeignKey(
+        ClinicalNeed,
+        on_delete=models.PROTECT,
+        related_name="verifications",
+    )
+
+    professional = models.ForeignKey(
+        "organizations.HealthcareProfessional",
+        on_delete=models.PROTECT,
+        related_name="verifications",
+    )
+
+    facility = models.ForeignKey(
+        "organizations.Facility",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="clinical_verifications",
+    )
+
+    status = models.CharField(
+        max_length=30,
+        choices=Status.choices,
+        default=Status.PENDING,
+    )
+
+    verification_notes = models.TextField()
+    verified_at = models.DateTimeField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "clinical_verification"
+        ordering = ["-created_at", "id"]
+        indexes = [
+            models.Index(fields=["clinical_need", "status"]),
+            models.Index(fields=["professional", "status"]),
+        ]
+
+    def __str__(self):
+        return f"Verification for {self.clinical_need} by {self.professional} ({self.status})"
