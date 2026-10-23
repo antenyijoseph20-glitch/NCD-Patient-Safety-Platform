@@ -159,3 +159,77 @@ class PatientContact(models.Model):
 
     def __str__(self):
         return f"{self.patient} - {self.contact_type}: {self.value}"
+
+
+class CaregiverRelationship(models.Model):
+    class RelationshipType(models.TextChoices):
+        PARENT = "PARENT", "Parent"
+        SPOUSE = "SPOUSE", "Spouse"
+        CHILD = "CHILD", "Child"
+        SIBLING = "SIBLING", "Sibling"
+        LEGAL_GUARDIAN = "LEGAL_GUARDIAN", "Legal guardian"
+        OTHER = "OTHER", "Other"
+
+    class Status(models.TextChoices):
+        PENDING = "PENDING", "Pending verification"
+        ACTIVE = "ACTIVE", "Active"
+        REVOKED = "REVOKED", "Revoked"
+        EXPIRED = "EXPIRED", "Expired"
+
+    id = models.BigAutoField(primary_key=True)
+
+    public_id = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False,
+    )
+
+    patient = models.ForeignKey(
+        Patient,
+        on_delete=models.PROTECT,
+        related_name="caregiver_relationships",
+    )
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="caregiving_relationships",
+    )
+
+    relationship_type = models.CharField(
+        max_length=50,
+        choices=RelationshipType.choices,
+    )
+
+    status = models.CharField(
+        max_length=30,
+        choices=Status.choices,
+        default=Status.PENDING,
+    )
+
+    can_view_records = models.BooleanField(default=True)
+    can_manage_care = models.BooleanField(default=False)
+    can_apply_funding = models.BooleanField(default=False)
+
+    verified_at = models.DateTimeField(null=True, blank=True)
+    notes = models.TextField(blank=True, default="")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "caregiver_relationship"
+        ordering = ["patient", "user", "id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["patient", "user"],
+                name="unique_patient_caregiver_user",
+            )
+        ]
+        indexes = [
+            models.Index(fields=["patient", "status"]),
+            models.Index(fields=["user", "status"]),
+        ]
+
+    def __str__(self):
+        return f"{self.user} -> {self.patient} ({self.relationship_type})"
