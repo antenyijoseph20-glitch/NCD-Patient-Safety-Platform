@@ -233,3 +233,75 @@ class CaregiverRelationship(models.Model):
 
     def __str__(self):
         return f"{self.user} -> {self.patient} ({self.relationship_type})"
+
+
+class ExternalIdentifier(models.Model):
+    class IdentifierType(models.TextChoices):
+        NATIONAL_ID = "NATIONAL_ID", "National identity number"
+        HEALTH_INSURANCE = "HEALTH_INSURANCE", "Health insurance number"
+        HOSPITAL_RECORD = "HOSPITAL_RECORD", "Hospital medical record number"
+        BIOMETRIC_REF = "BIOMETRIC_REF", "Biometric reference"
+        OTHER = "OTHER", "Other"
+
+    class VerificationStatus(models.TextChoices):
+        UNVERIFIED = "UNVERIFIED", "Unverified"
+        VERIFIED = "VERIFIED", "Verified"
+        REJECTED = "REJECTED", "Rejected"
+        EXPIRED = "EXPIRED", "Expired"
+
+    id = models.BigAutoField(primary_key=True)
+
+    public_id = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False,
+    )
+
+    patient = models.ForeignKey(
+        Patient,
+        on_delete=models.CASCADE,
+        related_name="external_identifiers",
+    )
+
+    system = models.CharField(max_length=100)
+    value = models.CharField(max_length=150)
+
+    identifier_type = models.CharField(
+        max_length=50,
+        choices=IdentifierType.choices,
+    )
+
+    issuing_authority = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+    )
+
+    verification_status = models.CharField(
+        max_length=30,
+        choices=VerificationStatus.choices,
+        default=VerificationStatus.UNVERIFIED,
+    )
+
+    valid_from = models.DateField(null=True, blank=True)
+    valid_to = models.DateField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "external_identifier"
+        ordering = ["system", "value", "id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["system", "value"],
+                name="unique_system_identifier_value",
+            )
+        ]
+        indexes = [
+            models.Index(fields=["system", "value"]),
+            models.Index(fields=["verification_status"]),
+        ]
+
+    def __str__(self):
+        return f"{self.system}:{self.value} ({self.patient})"

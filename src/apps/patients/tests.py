@@ -6,7 +6,12 @@ from django.db import IntegrityError
 from django.db.models.deletion import ProtectedError
 from django.test import TestCase
 
-from .models import CaregiverRelationship, Patient, PatientContact
+from .models import (
+    CaregiverRelationship,
+    ExternalIdentifier,
+    Patient,
+    PatientContact,
+)
 
 
 class PatientModelTests(TestCase):
@@ -169,3 +174,63 @@ class CaregiverRelationshipModelTests(TestCase):
 
         with self.assertRaises(ProtectedError):
             self.caregiver_user.delete()
+
+
+class ExternalIdentifierModelTests(TestCase):
+    def setUp(self):
+        self.patient = Patient.objects.create(
+            first_name="Babajide",
+            last_name="Adeyemi",
+            date_of_birth=date(1978, 11, 5),
+            gender=Patient.Gender.MALE,
+        )
+
+    def test_external_identifier_creation(self):
+        ext_id = ExternalIdentifier.objects.create(
+            patient=self.patient,
+            system="NIN",
+            value="12345678901",
+            identifier_type=ExternalIdentifier.IdentifierType.NATIONAL_ID,
+            issuing_authority="NIMC",
+            verification_status=ExternalIdentifier.VerificationStatus.VERIFIED,
+        )
+
+        self.assertEqual(ext_id.patient, self.patient)
+        self.assertEqual(ext_id.system, "NIN")
+        self.assertEqual(ext_id.verification_status, ExternalIdentifier.VerificationStatus.VERIFIED)
+        self.assertIsNotNone(ext_id.public_id)
+
+    def test_unique_system_and_value_constraint(self):
+        ExternalIdentifier.objects.create(
+            patient=self.patient,
+            system="NIN",
+            value="12345678901",
+            identifier_type=ExternalIdentifier.IdentifierType.NATIONAL_ID,
+        )
+
+        other_patient = Patient.objects.create(
+            first_name="Tunde",
+            last_name="Bakare",
+            date_of_birth=date(1982, 6, 21),
+            gender=Patient.Gender.MALE,
+        )
+
+        with self.assertRaises(IntegrityError):
+            ExternalIdentifier.objects.create(
+                patient=other_patient,
+                system="NIN",
+                value="12345678901",
+                identifier_type=ExternalIdentifier.IdentifierType.NATIONAL_ID,
+            )
+
+    def test_patient_deletion_cascades_to_external_identifiers(self):
+        ExternalIdentifier.objects.create(
+            patient=self.patient,
+            system="NHIA",
+            value="NHIA-998877",
+            identifier_type=ExternalIdentifier.IdentifierType.HEALTH_INSURANCE,
+        )
+        self.assertEqual(ExternalIdentifier.objects.count(), 1)
+
+        self.patient.delete()
+        self.assertEqual(ExternalIdentifier.objects.count(), 0)
