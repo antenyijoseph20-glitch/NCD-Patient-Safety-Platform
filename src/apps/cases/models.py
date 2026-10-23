@@ -79,3 +79,56 @@ class CareSupportCase(models.Model):
 
     def __str__(self):
         return f"{self.case_number}: {self.title} ({self.status})"
+
+
+class CaseAssignment(models.Model):
+    class Role(models.TextChoices):
+        CASE_OFFICER = "CASE_OFFICER", "Case officer"
+        CLINICAL_LEAD = "CLINICAL_LEAD", "Clinical lead"
+        CAREGIVER_LIAISON = "CAREGIVER_LIAISON", "Caregiver liaison"
+        AUDITOR = "AUDITOR", "Auditor"
+
+    id = models.BigAutoField(primary_key=True)
+
+    public_id = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False,
+    )
+
+    case = models.ForeignKey(
+        CareSupportCase,
+        on_delete=models.CASCADE,
+        related_name="assignments",
+    )
+
+    assigned_to = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="case_assignments",
+    )
+
+    role = models.CharField(
+        max_length=50,
+        choices=Role.choices,
+        default=Role.CASE_OFFICER,
+    )
+
+    is_active = models.BooleanField(default=True)
+    assigned_at = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True, default="")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "case_assignment"
+        ordering = ["case", "-is_active", "-assigned_at", "id"]
+        indexes = [
+            models.Index(fields=["case", "is_active"]),
+            models.Index(fields=["assigned_to", "is_active"]),
+            models.Index(fields=["role"]),
+        ]
+
+    def __str__(self):
+        return f"{self.case.case_number} -> {self.assigned_to} ({self.role})"
