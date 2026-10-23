@@ -7,7 +7,7 @@ from django.test import TestCase
 
 from apps.organizations.models import Facility, HealthcareProfessional, Organization
 from apps.patients.models import Patient
-from .models import ClinicalNeed, ClinicalVerification
+from .models import ClinicalEvidence, ClinicalNeed, ClinicalVerification
 
 
 class ClinicalNeedModelTests(TestCase):
@@ -108,6 +108,46 @@ class ClinicalVerificationModelTests(TestCase):
             clinical_need=self.clinical_need,
             professional=self.doctor,
             verification_notes="Verified.",
+        )
+
+        with self.assertRaises(ProtectedError):
+            self.clinical_need.delete()
+
+
+class ClinicalEvidenceModelTests(TestCase):
+    def setUp(self):
+        self.patient = Patient.objects.create(
+            first_name="Fatima",
+            last_name="Yusuf",
+            date_of_birth=date(1995, 7, 30),
+            gender=Patient.Gender.FEMALE,
+        )
+        self.clinical_need = ClinicalNeed.objects.create(
+            patient=self.patient,
+            condition_name="Sickle Cell Anemia (HbSS)",
+            clinical_summary="Vaso-occlusive crises management and hydroxyurea therapy.",
+        )
+
+    def test_clinical_evidence_creation(self):
+        evidence = ClinicalEvidence.objects.create(
+            clinical_need=self.clinical_need,
+            evidence_type=ClinicalEvidence.EvidenceType.LABORATORY_REPORT,
+            title="Hemoglobin Electrophoresis Report",
+            document_reference="s3://ncd-evidence/patient-10/hbss_electrophoresis.pdf",
+            sha256_checksum="e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            issued_by="Lagos University Teaching Hospital Lab",
+            issued_date=date(2026, 6, 12),
+        )
+
+        self.assertEqual(evidence.clinical_need, self.clinical_need)
+        self.assertEqual(evidence.evidence_type, ClinicalEvidence.EvidenceType.LABORATORY_REPORT)
+        self.assertIsNotNone(evidence.public_id)
+
+    def test_clinical_evidence_protects_clinical_need_deletion(self):
+        ClinicalEvidence.objects.create(
+            clinical_need=self.clinical_need,
+            evidence_type=ClinicalEvidence.EvidenceType.PRESCRIPTION,
+            title="Hydroxyurea Prescription",
         )
 
         with self.assertRaises(ProtectedError):

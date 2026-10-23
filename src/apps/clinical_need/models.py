@@ -125,3 +125,54 @@ class ClinicalVerification(models.Model):
 
     def __str__(self):
         return f"Verification for {self.clinical_need} by {self.professional} ({self.status})"
+
+
+class ClinicalEvidence(models.Model):
+    class EvidenceType(models.TextChoices):
+        LABORATORY_REPORT = "LABORATORY_REPORT", "Laboratory report"
+        PATHOLOGY_REPORT = "PATHOLOGY_REPORT", "Pathology report"
+        RADIOLOGY_SCAN = "RADIOLOGY_SCAN", "Radiology scan"
+        PRESCRIPTION = "PRESCRIPTION", "Prescription"
+        DISCHARGE_SUMMARY = "DISCHARGE_SUMMARY", "Discharge summary"
+        CLINICAL_NOTE = "CLINICAL_NOTE", "Clinical note"
+        OTHER = "OTHER", "Other evidence"
+
+    id = models.BigAutoField(primary_key=True)
+
+    public_id = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False,
+    )
+
+    clinical_need = models.ForeignKey(
+        ClinicalNeed,
+        on_delete=models.PROTECT,
+        related_name="evidence_records",
+    )
+
+    evidence_type = models.CharField(
+        max_length=50,
+        choices=EvidenceType.choices,
+    )
+
+    title = models.CharField(max_length=255)
+    document_reference = models.CharField(max_length=255, blank=True, default="")
+    sha256_checksum = models.CharField(max_length=64, blank=True, default="")
+
+    issued_by = models.CharField(max_length=255, blank=True, default="")
+    issued_date = models.DateField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "clinical_evidence"
+        ordering = ["-created_at", "id"]
+        indexes = [
+            models.Index(fields=["clinical_need", "evidence_type"]),
+            models.Index(fields=["sha256_checksum"]),
+        ]
+
+    def __str__(self):
+        return f"{self.title} ({self.evidence_type}) for {self.clinical_need}"
