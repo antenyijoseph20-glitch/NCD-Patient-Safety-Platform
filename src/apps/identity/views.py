@@ -21,21 +21,34 @@ def home(request):
             AssistanceAuthorization.objects.aggregate(total=Sum("authorized_amount"))["total"]
             or Decimal("0.00")
         )
+        active_programmes = (
+            FundingProgramme.objects.filter(status="ACTIVE")
+            .select_related("source")
+            .prefetch_related("rules")[:4]
+        )
+        accredited_facilities = (
+            Facility.objects.filter(status="ACTIVE")
+            .select_related("organization")[:4]
+        )
     except Exception:
         patient_count = 0
         facility_count = 0
         case_count = 0
         programme_count = 0
         total_authorized = Decimal("0.00")
+        active_programmes = []
+        accredited_facilities = []
 
     context = {
         "platform_name": "NCD Patient Safety Platform",
-        "tagline": "Standards-Based Noncommunicable Disease Care Coordination & Financial Assistance",
+        "tagline": "National Care Coordination & Healthcare Subsidy Initiative",
         "patient_count": patient_count,
         "facility_count": facility_count,
         "case_count": case_count,
         "programme_count": programme_count,
         "total_authorized": total_authorized,
+        "active_programmes": active_programmes,
+        "accredited_facilities": accredited_facilities,
     }
 
     return render(request, "home.html", context)
