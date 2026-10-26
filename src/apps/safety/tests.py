@@ -1,5 +1,5 @@
-from datetime import date
 import uuid
+from datetime import date
 
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
@@ -9,6 +9,7 @@ from django.utils import timezone
 
 from apps.cases.models import CareSupportCase
 from apps.patients.models import Patient
+
 from .models import SafetyEvent
 
 

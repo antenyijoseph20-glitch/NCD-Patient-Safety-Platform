@@ -1,5 +1,5 @@
-from datetime import date
 import uuid
+from datetime import date
 
 from django.contrib.auth import get_user_model
 from django.db.models.deletion import ProtectedError
@@ -7,6 +7,7 @@ from django.test import TestCase
 
 from apps.organizations.models import Facility, HealthcareProfessional, Organization
 from apps.patients.models import Patient
+
 from .models import ClinicalEvidence, ClinicalNeed, ClinicalVerification
 
 

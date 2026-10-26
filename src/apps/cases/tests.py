@@ -1,5 +1,5 @@
-from datetime import date
 import uuid
+from datetime import date
 
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
@@ -20,6 +20,7 @@ from apps.patients.models import (
     PatientContact,
 )
 from apps.safety.models import SafetyEvent
+
 from .models import CareSupportCase, CaseAssignment
 
 
