@@ -3,6 +3,7 @@ import uuid
 from django.conf import settings
 from django.db import models
 
+
 class Organization(models.Model):
     class OrganizationType(models.TextChoices):
         GOVERNMENT = "GOVERNMENT", "Government"
@@ -119,7 +120,6 @@ class Facility(models.Model):
         )
         PHARMACY = "PHARMACY", "Pharmacy"
         OTHER = "OTHER", "Other"
-
 
     class Status(models.TextChoices):
         PENDING_VERIFICATION = (

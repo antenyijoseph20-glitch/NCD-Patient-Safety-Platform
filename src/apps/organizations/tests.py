@@ -5,6 +5,7 @@ from django.test import TestCase
 
 from .models import Facility, HealthcareProfessional, Organization
 
+
 class OrganizationModelTests(TestCase):
     def test_organization_is_created_with_default_status(self):
         organization = Organization.objects.create(
@@ -87,6 +88,7 @@ class FacilityModelTests(TestCase):
 
         with self.assertRaises(ProtectedError):
             self.organization.delete()
+
 
 class HealthcareProfessionalModelTests(TestCase):
     def setUp(self):

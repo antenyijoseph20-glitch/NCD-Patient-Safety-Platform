@@ -1,0 +1,49 @@
+name: CI Pipeline - NCD Patient Safety Platform
+
+on:
+  push:
+    branches: [ "main", "feature/**" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    name: Code Quality & Automated Test Suite
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run Ruff Linting & Formatting Check
+        run: |
+          ruff check .
+          ruff format --check .
+
+      - name: Django System Check & Migration Sanity
+        env:
+          DJANGO_SECRET_KEY: "ci-secret-key-temporary-testing-only"
+          DJANGO_DEBUG: "false"
+          DATABASE_ENGINE: "django.db.backends.sqlite3"
+        run: |
+          python src/manage.py check
+          python src/manage.py makemigrations --check --dry-run
+
+      - name: Execute Full Test Suite
+        env:
+          DJANGO_SECRET_KEY: "ci-secret-key-temporary-testing-only"
+          DJANGO_DEBUG: "false"
+          DATABASE_ENGINE: "django.db.backends.sqlite3"
+        run: |
+          python src/manage.py test apps.cases apps.clinical_need apps.funding apps.identity apps.organizations apps.patients apps.payments apps.safety
