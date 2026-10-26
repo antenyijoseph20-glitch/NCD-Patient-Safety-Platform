@@ -2,6 +2,11 @@ from django.contrib import admin
 from django.db import connection
 from django.http import JsonResponse
 from django.urls import include, path
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
 from rest_framework.routers import DefaultRouter
 
 from apps.funding.views import (
@@ -50,6 +55,9 @@ router.register("payments/reconciliations", ReconciliationViewSet, basename="rec
 urlpatterns = [
     path("", home, name="home"),
     path("healthz/", health_check, name="health_check"),
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
+    path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
     path("api/v1/", include(router.urls)),
     path("api-auth/", include("rest_framework.urls")),
     path("cases/<int:case_id>/", case_demo, name="case_demo"),

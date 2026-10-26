@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "drf_spectacular",
     "apps.identity",
     "apps.patients",
     "apps.clinical_need",
@@ -152,3 +153,19 @@ CELERY_RESULT_BACKEND = env("REDIS_URL", default="redis://localhost:6379/0")
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
+
+# REST Framework & OpenAPI Documentation (Swagger)
+REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "NCD Patient Safety & Healthcare Aid Platform API",
+    "DESCRIPTION": (
+        "OpenAPI 3.0 specification for Noncommunicable Disease care coordination, "
+        "clinical verification, grant applications, and banking disbursement execution."
+    ),
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+}
+
