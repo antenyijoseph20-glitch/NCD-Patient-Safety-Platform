@@ -17,19 +17,13 @@ def home(request):
         facility_count = Facility.objects.count()
         case_count = CareSupportCase.objects.count()
         programme_count = FundingProgramme.objects.count()
-        total_authorized = (
-            AssistanceAuthorization.objects.aggregate(total=Sum("authorized_amount"))["total"]
-            or Decimal("0.00")
-        )
+        total_authorized = AssistanceAuthorization.objects.aggregate(total=Sum("authorized_amount"))[
+            "total"
+        ] or Decimal("0.00")
         active_programmes = (
-            FundingProgramme.objects.filter(status="ACTIVE")
-            .select_related("source")
-            .prefetch_related("rules")[:4]
+            FundingProgramme.objects.filter(status="ACTIVE").select_related("source").prefetch_related("rules")[:4]
         )
-        accredited_facilities = (
-            Facility.objects.filter(status="ACTIVE")
-            .select_related("organization")[:4]
-        )
+        accredited_facilities = Facility.objects.filter(status="ACTIVE").select_related("organization")[:4]
     except Exception:
         patient_count = 0
         facility_count = 0
@@ -52,6 +46,31 @@ def home(request):
     }
 
     return render(request, "home.html", context)
+
+
+def eligibility_check(request):
+    """
+    Interactive Self-Assessment tool for patients and families to evaluate
+    eligibility for sponsored NCD medical aid and find accredited hospital clinics.
+    """
+    condition = request.GET.get("condition", "")
+    matching_programmes = []
+
+    if condition:
+        matching_programmes = (
+            FundingProgramme.objects.filter(status=FundingProgramme.Status.ACTIVE)
+            .select_related("source")
+            .prefetch_related("rules")
+        )
+
+    facilities = Facility.objects.filter(status=Facility.Status.ACTIVE).select_related("organization")[:6]
+
+    context = {
+        "condition": condition,
+        "matching_programmes": matching_programmes,
+        "facilities": facilities,
+    }
+    return render(request, "portal/eligibility_check.html", context)
 
 
 def case_demo(request, case_id):

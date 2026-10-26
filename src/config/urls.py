@@ -9,13 +9,14 @@ from drf_spectacular.views import (
 )
 from rest_framework.routers import DefaultRouter
 
+from apps.clinical_need.views import clinician_portal
 from apps.funding.views import (
     AssistanceAuthorizationViewSet,
     FundingApplicationViewSet,
     FundingProgrammeViewSet,
     FundingSourceViewSet,
 )
-from apps.identity.views import case_demo, demo_form, home
+from apps.identity.views import case_demo, demo_form, eligibility_check, home
 from apps.payments.views import (
     PaymentInstructionViewSet,
     PaymentViewSet,
@@ -54,6 +55,8 @@ router.register("payments/reconciliations", ReconciliationViewSet, basename="rec
 
 urlpatterns = [
     path("", home, name="home"),
+    path("portal/clinician/", clinician_portal, name="clinician_portal"),
+    path("eligibility-check/", eligibility_check, name="eligibility_check"),
     path("healthz/", health_check, name="health_check"),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),

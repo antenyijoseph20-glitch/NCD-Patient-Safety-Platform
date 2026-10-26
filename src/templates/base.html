@@ -58,26 +58,26 @@
 
                 <!-- Navigation Menu -->
                 <nav class="hidden lg:flex items-center space-x-8 text-sm font-semibold text-slate-600">
-                    <a href="#how-it-works" class="hover:text-teal-600 transition">How It Works</a>
-                    <a href="#programmes" class="hover:text-teal-600 transition">Assistance Programs</a>
-                    <a href="#trust" class="hover:text-teal-600 transition">Donor Transparency</a>
-                    <a href="#facilities" class="hover:text-teal-600 transition">Accredited Hospitals</a>
-                    <a href="/api/docs/" target="_blank" class="hover:text-teal-600 transition flex items-center gap-1">
-                        API Registry
-                        <span class="text-[10px] bg-teal-50 text-teal-700 px-1.5 py-0.5 rounded font-mono font-semibold">Swagger</span>
+                    <a href="/#how-it-works" class="hover:text-teal-600 transition">How It Works</a>
+                    <a href="/#programmes" class="hover:text-teal-600 transition">Assistance Programs</a>
+                    <a href="/#trust" class="hover:text-teal-600 transition">Donor Transparency</a>
+                    <a href="/#facilities" class="hover:text-teal-600 transition">Accredited Hospitals</a>
+                    <a href="{% url 'eligibility_check' %}" class="hover:text-teal-600 transition flex items-center gap-1.5 text-teal-700 font-bold">
+                        <span class="w-2 h-2 rounded-full bg-teal-500"></span>
+                        Check Eligibility
                     </a>
                 </nav>
 
                 <!-- Portals CTA -->
                 <div class="flex items-center space-x-3">
-                    <a href="#how-it-works" class="hidden sm:inline-flex items-center px-4 py-2 rounded-xl border border-slate-300 hover:border-teal-600 text-slate-700 hover:text-teal-700 font-semibold text-sm transition">
+                    <a href="{% url 'eligibility_check' %}" class="hidden sm:inline-flex items-center px-4 py-2 rounded-xl border border-slate-300 hover:border-teal-600 text-slate-700 hover:text-teal-700 font-semibold text-sm transition">
                         Find Assistance
                     </a>
-                    <a href="/admin/" target="_blank" class="inline-flex items-center px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-bold text-sm shadow-md shadow-teal-600/25 transition active:scale-95">
+                    <a href="{% url 'clinician_portal' %}" class="inline-flex items-center px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-bold text-sm shadow-md shadow-teal-600/25 transition active:scale-95">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
-                        Institutional Portal
+                        Hospital & Clinician Portal
                     </a>
                 </div>
             </div>
@@ -130,11 +130,11 @@
                 <div>
                     <h4 class="text-white text-xs font-bold uppercase tracking-wider mb-4">Provider Network</h4>
                     <ul class="space-y-2.5 text-xs">
-                        <li><a href="/admin/" class="hover:text-teal-400 transition">Hospital & Facility Login</a></li>
-                        <li><a href="/admin/" class="hover:text-teal-400 transition">MDCN Clinician Verification</a></li>
-                        <li><a href="/api/docs/" target="_blank" class="hover:text-teal-400 transition">Interactive Swagger API Docs</a></li>
-                        <li><a href="/healthz/" class="hover:text-teal-400 transition">Live System Telemetry</a></li>
-                        <li><a href="/admin/" class="hover:text-teal-400 transition">Disbursement Ledger Audit</a></li>
+                        <li><a href="{% url 'clinician_portal' %}" class="hover:text-teal-400 transition">Hospital & Clinician Portal</a></li>
+                        <li><a href="{% url 'clinician_portal' %}#safety-form" class="hover:text-teal-400 transition">Patient Safety Incident Desk</a></li>
+                        <li><a href="{% url 'eligibility_check' %}" class="hover:text-teal-400 transition">Patient Eligibility Check</a></li>
+                        <li><a href="/admin/" class="hover:text-teal-400 transition">Institutional Governance (Admin)</a></li>
+                        <li><a href="/api/docs/" target="_blank" class="hover:text-teal-400 transition">Interoperability API (Swagger)</a></li>
                     </ul>
                 </div>
 

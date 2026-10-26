@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block title %}Patient Eligibility Self-Assessment — NCD Patient Safety Platform{% endblock %}
+
+{% block content %}
+<div class="bg-gradient-to-b from-teal-50/60 via-slate-50 to-white min-h-screen py-16">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Header Section -->
+        <div class="text-center mb-12">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-teal-100 text-teal-800 border border-teal-200 uppercase tracking-wider mb-4">
+                Patient & Family Navigator
+            </span>
+            <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-950 tracking-tight">
+                NCD Treatment Subsidy <br/>
+                <span class="bg-gradient-to-r from-teal-700 via-teal-600 to-emerald-600 bg-clip-text text-transparent">
+                    Eligibility Self-Assessment
+                </span>
+            </h1>
+            <p class="mt-4 text-slate-600 text-base max-w-2xl mx-auto">
+                Check whether your diagnosis qualifies for sponsored oncology, renal, diabetes, or cardiovascular treatment aid at accredited public and teaching hospitals.
+            </p>
+        </div>
+
+        <!-- Interactive Screening Card -->
+        <div class="bg-white rounded-3xl p-8 sm:p-10 border border-slate-200/90 shadow-xl shadow-slate-900/5 mb-10">
+            <h2 class="text-lg font-bold text-slate-900 mb-2">Step 1: Select Diagnosed Condition</h2>
+            <p class="text-xs text-slate-500 mb-6">Choose your primary chronic condition to see matching funding packages and accredited clinical partners.</p>
+
+            <form method="GET" action="{% url 'eligibility_check' %}" class="space-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <label class="cursor-pointer">
+                        <input type="radio" name="condition" value="oncology" {% if condition == 'oncology' or not condition %}checked{% endif %} class="peer sr-only">
+                        <div class="p-5 rounded-2xl border-2 border-slate-200 peer-checked:border-teal-600 peer-checked:bg-teal-50/50 transition">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-bold text-slate-900">Oncology / Cancer</span>
+                                <span class="w-4 h-4 rounded-full border-2 border-slate-300 peer-checked:border-teal-600 peer-checked:bg-teal-600 flex items-center justify-center"></span>
+                            </div>
+                            <p class="text-xs text-slate-500">Breast, cervical, prostate, colorectal tumors, chemotherapy & radiation therapy.</p>
+                        </div>
+                    </label>
+
+                    <label class="cursor-pointer">
+                        <input type="radio" name="condition" value="renal" {% if condition == 'renal' %}checked{% endif %} class="peer sr-only">
+                        <div class="p-5 rounded-2xl border-2 border-slate-200 peer-checked:border-teal-600 peer-checked:bg-teal-50/50 transition">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-bold text-slate-900">Chronic Kidney Disease</span>
+                                <span class="w-4 h-4 rounded-full border-2 border-slate-300 peer-checked:border-teal-600 peer-checked:bg-teal-600 flex items-center justify-center"></span>
+                            </div>
+                            <p class="text-xs text-slate-500">Stage 4-5 CKD, maintenance hemodialysis, and emergency vascular access support.</p>
+                        </div>
+                    </label>
+
+                    <label class="cursor-pointer">
+                        <input type="radio" name="condition" value="diabetes" {% if condition == 'diabetes' %}checked{% endif %} class="peer sr-only">
+                        <div class="p-5 rounded-2xl border-2 border-slate-200 peer-checked:border-teal-600 peer-checked:bg-teal-50/50 transition">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-bold text-slate-900">Endocrine / Diabetes</span>
+                                <span class="w-4 h-4 rounded-full border-2 border-slate-300 peer-checked:border-teal-600 peer-checked:bg-teal-600 flex items-center justify-center"></span>
+                            </div>
+                            <p class="text-xs text-slate-500">Pediatric Type-1 diabetes, insulin subsidies, continuous glucose monitoring.</p>
+                        </div>
+                    </label>
+
+                    <label class="cursor-pointer">
+                        <input type="radio" name="condition" value="cardiovascular" {% if condition == 'cardiovascular' %}checked{% endif %} class="peer sr-only">
+                        <div class="p-5 rounded-2xl border-2 border-slate-200 peer-checked:border-teal-600 peer-checked:bg-teal-50/50 transition">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-bold text-slate-900">Cardiovascular Disease</span>
+                                <span class="w-4 h-4 rounded-full border-2 border-slate-300 peer-checked:border-teal-600 peer-checked:bg-teal-600 flex items-center justify-center"></span>
+                            </div>
+                            <p class="text-xs text-slate-500">Severe hypertensive heart disease, heart failure management, surgical repair.</p>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="flex justify-center pt-2">
+                    <button type="submit" class="px-8 py-3.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-teal-600/20 transition active:scale-95">
+                        Assess Matching Assistance Programs &rarr;
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Assessment Results & Matching Aid Packages -->
+        <div class="space-y-6">
+            <h2 class="text-xl font-bold text-slate-900">Available Sponsored Assistance Programmes</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {% for prog in matching_programmes %}
+                <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-[10px] font-bold uppercase tracking-wider bg-teal-100 text-teal-800 px-3 py-1 rounded-full border border-teal-200">
+                                {{ prog.source.name }}
+                            </span>
+                            <span class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+                                Open for Applications
+                            </span>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-2">{{ prog.name }}</h3>
+                        <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                            {{ prog.description|default:"Covers diagnostic staging, specialist physician consultation, systemic therapies, and follow-up clinical monitoring for enrolled beneficiaries." }}
+                        </p>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] text-slate-400 block uppercase font-bold">Funding Allocation</span>
+                            <span class="text-base font-extrabold text-teal-700">₦{{ prog.budget_limit|floatformat:2 }}</span>
+                        </div>
+                        <a href="{% url 'clinician_portal' %}" class="px-4 py-2 bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold text-xs rounded-xl border border-teal-200 transition">
+                            Initiate via Doctor &rarr;
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <!-- Default Package Cards -->
+                <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-[10px] font-bold uppercase tracking-wider bg-teal-100 text-teal-800 px-3 py-1 rounded-full border border-teal-200">
+                                Federal Ministry of Health Partner Fund
+                            </span>
+                            <span class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+                                Qualified
+                            </span>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-2">Comprehensive NCD Direct Assistance</h3>
+                        <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                            Direct subsidy covering certified inpatient hospital admissions, diagnostic histopathology, specialist consultations, and essential medications.
+                        </p>
+                    </div>
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] text-slate-400 block uppercase font-bold">Subsidy Tier</span>
+                            <span class="text-base font-extrabold text-teal-700">Up to ₦1,500,000 / episode</span>
+                        </div>
+                        <a href="{% url 'clinician_portal' %}" class="px-4 py-2 bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold text-xs rounded-xl border border-teal-200 transition">
+                            Initiate via Doctor &rarr;
+                        </a>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-[10px] font-bold uppercase tracking-wider bg-purple-100 text-purple-800 px-3 py-1 rounded-full border border-purple-200">
+                                National Catastrophic Health Trust
+                            </span>
+                            <span class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+                                Qualified
+                            </span>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-2">Surgical & High-Care Subsidy</h3>
+                        <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                            Provides targeted financial relief for emergency procedures, specialized intensive care, and essential pharmaceutical regimens.
+                        </p>
+                    </div>
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] text-slate-400 block uppercase font-bold">Subsidy Tier</span>
+                            <span class="text-base font-extrabold text-teal-700">100% Direct Settlement</span>
+                        </div>
+                        <a href="{% url 'clinician_portal' %}" class="px-4 py-2 bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold text-xs rounded-xl border border-teal-200 transition">
+                            Initiate via Doctor &rarr;
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Accredited Facilities Near You -->
+            <div class="bg-slate-900 text-white rounded-3xl p-8 mt-10">
+                <div class="max-w-xl mb-6">
+                    <span class="text-xs font-bold text-teal-400 uppercase tracking-widest">Next Step for Enrollment</span>
+                    <h3 class="text-2xl font-bold mt-1">Visit an Accredited Healthcare Facility</h3>
+                    <p class="text-xs text-slate-400 mt-2">
+                        Financial assistance is certified and claimed directly through licensed physicians at accredited hospitals. Present your national identification (NIN) to begin clinical enrollment.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    {% for fac in facilities %}
+                    <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700">
+                        <div class="flex items-center space-x-2 text-xs font-bold text-emerald-400 mb-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                            <span>{{ fac.facility_type }}</span>
+                        </div>
+                        <h4 class="font-bold text-white text-sm">{{ fac.name }}</h4>
+                        <p class="text-xs text-slate-400 mt-1">{{ fac.city }}, {{ fac.state }}</p>
+                    </div>
+                    {% empty %}
+                    <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700">
+                        <div class="flex items-center space-x-2 text-xs font-bold text-emerald-400 mb-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                            <span>Tertiary Referral Center</span>
+                        </div>
+                        <h4 class="font-bold text-white text-sm">National Hospital Abuja</h4>
+                        <p class="text-xs text-slate-400 mt-1">Central Business District, FCT</p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700">
+                        <div class="flex items-center space-x-2 text-xs font-bold text-emerald-400 mb-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                            <span>Teaching Hospital</span>
+                        </div>
+                        <h4 class="font-bold text-white text-sm">Lagos University Teaching Hospital (LUTH)</h4>
+                        <p class="text-xs text-slate-400 mt-1">Idi-Araba, Surulere, Lagos</p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700">
+                        <div class="flex items-center space-x-2 text-xs font-bold text-emerald-400 mb-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                            <span>Specialist Oncology Center</span>
+                        </div>
+                        <h4 class="font-bold text-white text-sm">Ahmadu Bello University Teaching Hospital</h4>
+                        <p class="text-xs text-slate-400 mt-1">Zaria, Kaduna State</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+{% endblock %}
