@@ -192,6 +192,8 @@ class GlobalHealthAndInteroperabilityTests(TestCase):
         self.assertEqual(data["fhirVersion"], "4.0.1")
         self.assertEqual(data["status"], "active")
         self.assertIn("rest", data)
+        security = data["rest"][0]["security"]
+        self.assertEqual(security["service"][0]["coding"][0]["code"], "SMART-on-FHIR")
         resources = [r["type"] for r in data["rest"][0]["resource"]]
         self.assertIn("Patient", resources)
         self.assertIn("Condition", resources)

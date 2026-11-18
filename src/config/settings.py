@@ -48,6 +48,9 @@ INSTALLED_APPS = [
     "apps.funding",
     "apps.payments",
     "apps.interoperability",
+    "apps.governance",
+    "apps.communication",
+    "apps.pharmacy",
 ]
 
 AUTH_USER_MODEL = "identity.User"

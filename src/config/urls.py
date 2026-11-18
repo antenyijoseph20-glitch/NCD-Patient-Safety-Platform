@@ -28,6 +28,14 @@ from apps.funding.views import (
     donor_portal,
     funding_portal,
 )
+from apps.communication.views import (
+    DeliveryReportCallbackView,
+    NotificationViewSet,
+    USSDCallbackView,
+    USSDSessionViewSet,
+)
+from apps.governance.views import AuditEventViewSet, ConsentAuthorizationViewSet
+from apps.pharmacy.views import MedicationRegimenViewSet, PharmacyDispensingLogViewSet
 from apps.identity.views import case_demo, demo_form, eligibility_check, home
 from apps.organizations.views import (
     FacilityViewSet,
@@ -96,6 +104,18 @@ router.register("payments/records", PaymentViewSet, basename="payment-record")
 router.register("payments/evidence", ServiceEvidenceViewSet, basename="service-evidence")
 router.register("payments/reconciliations", ReconciliationViewSet, basename="reconciliation")
 
+# Governance, Consent & Regulatory Audit Stream
+router.register("governance/consents", ConsentAuthorizationViewSet, basename="consent-authorization")
+router.register("governance/audit-events", AuditEventViewSet, basename="audit-event")
+
+# Communication & Multilingual Telco Stream
+router.register("communication/notifications", NotificationViewSet, basename="notification")
+router.register("communication/ussd-sessions", USSDSessionViewSet, basename="ussd-session")
+
+# Pharmacy, Counterfeit Prevention & Medication Regimens
+router.register("pharmacy/regimens", MedicationRegimenViewSet, basename="regimen")
+router.register("pharmacy/dispensings", PharmacyDispensingLogViewSet, basename="dispensing")
+
 urlpatterns = [
     path("", home, name="home"),
     path("portal/clinician/", clinician_portal, name="clinician_portal"),
@@ -107,6 +127,8 @@ urlpatterns = [
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
     path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
+    path("api/v1/communication/", include("apps.communication.urls")),
+    path("api/v1/pharmacy/", include("apps.pharmacy.urls")),
     path("api/v1/", include(router.urls)),
     path("api/fhir/", include("apps.interoperability.urls")),
     path("api-auth/", include("rest_framework.urls")),

@@ -17,6 +17,8 @@ from apps.clinical_need.models import (
     ClinicalNeed,
     ClinicalVerification,
 )
+from apps.communication.models import Notification, USSDSession
+from apps.communication.services import NotificationService
 from apps.funding.models import (
     AssistanceAuthorization,
     FundingApplication,
@@ -26,6 +28,8 @@ from apps.funding.models import (
     FundingSource,
     ProgrammeRule,
 )
+from apps.governance.models import AuditEvent, ConsentAuthorization
+from apps.governance.services import AuditLogger, ConsentManager
 from apps.organizations.models import Facility, HealthcareProfessional, Organization
 from apps.patients.models import (
     CaregiverRelationship,
@@ -39,6 +43,7 @@ from apps.payments.models import (
     Reconciliation,
     ServiceEvidence,
 )
+from apps.pharmacy.models import MedicationRegimen, PharmacyDispensingLog
 from apps.safety.models import SafetyEvent
 
 
@@ -150,6 +155,51 @@ class Command(BaseCommand):
             auditor_zainab_user.set_password("AuditPass2026!")
             auditor_zainab_user.save()
 
+            # Patient & Beneficiary User Accounts (for Patient Portal access)
+            patient_emeka_user, _ = User.objects.get_or_create(
+                username="emeka_nwosu",
+                defaults={
+                    "first_name": "Emeka",
+                    "last_name": "Nwosu",
+                    "email": "emeka.nwosu@example.ng",
+                },
+            )
+            patient_emeka_user.set_password("PatientPass2026!")
+            patient_emeka_user.save()
+
+            patient_amina_user, _ = User.objects.get_or_create(
+                username="amina_bello",
+                defaults={
+                    "first_name": "Amina",
+                    "last_name": "Bello",
+                    "email": "amina.bello@example.ng",
+                },
+            )
+            patient_amina_user.set_password("PatientPass2026!")
+            patient_amina_user.save()
+
+            patient_ibrahim_user, _ = User.objects.get_or_create(
+                username="ibrahim_danjuma",
+                defaults={
+                    "first_name": "Ibrahim",
+                    "last_name": "Danjuma",
+                    "email": "ibrahim.danjuma@example.ng",
+                },
+            )
+            patient_ibrahim_user.set_password("PatientPass2026!")
+            patient_ibrahim_user.save()
+
+            patient_ngozi_user, _ = User.objects.get_or_create(
+                username="ngozi_okafor",
+                defaults={
+                    "first_name": "Ngozi",
+                    "last_name": "Okafor",
+                    "email": "ngozi.okafor@example.ng",
+                },
+            )
+            patient_ngozi_user.set_password("PatientPass2026!")
+            patient_ngozi_user.save()
+
             # 2. Organizations & Healthcare Facilities
             self.stdout.write("2. Establishing accredited healthcare provider network...")
             fmoh_org, _ = Organization.objects.get_or_create(
@@ -254,6 +304,7 @@ class Command(BaseCommand):
                 first_name="Emeka",
                 last_name="Nwosu",
                 defaults={
+                    "user": patient_emeka_user,
                     "other_names": "Chukwudi",
                     "date_of_birth": date(1972, 8, 14),
                     "gender": Patient.Gender.MALE,
@@ -345,6 +396,7 @@ class Command(BaseCommand):
                 first_name="Amina",
                 last_name="Bello",
                 defaults={
+                    "user": patient_amina_user,
                     "other_names": "Zahra",
                     "date_of_birth": date(1978, 3, 22),
                     "gender": Patient.Gender.FEMALE,
@@ -497,6 +549,7 @@ class Command(BaseCommand):
                 last_name="Danjuma",
                 date_of_birth=date(1968, 5, 20),
                 defaults={
+                    "user": patient_ibrahim_user,
                     "gender": Patient.Gender.MALE,
                     "blood_group": Patient.BloodGroup.O_POSITIVE,
                     "genotype": Patient.Genotype.AA,
@@ -534,6 +587,7 @@ class Command(BaseCommand):
                 last_name="Okafor",
                 date_of_birth=date(1976, 11, 14),
                 defaults={
+                    "user": patient_ngozi_user,
                     "gender": Patient.Gender.FEMALE,
                     "blood_group": Patient.BloodGroup.B_POSITIVE,
                     "genotype": Patient.Genotype.AS,
@@ -896,19 +950,21 @@ class Command(BaseCommand):
 
             # 6. Periodic Financial Reconciliation Audit
             self.stdout.write("6. Generating initial 30-day banking reconciliation audit...")
-            Reconciliation.objects.get_or_create(
+            if not Reconciliation.objects.filter(
                 reconciliation_period_start=date.today() - timedelta(days=30),
                 reconciliation_period_end=date.today(),
-                defaults={
-                    "total_instruction_amount": Decimal("600000.00"),
-                    "total_executed_amount": Decimal("600000.00"),
-                    "total_adjusted_amount": Decimal("0.00"),
-                    "discrepancy_amount": Decimal("0.00"),
-                    "status": Reconciliation.Status.BALANCED,
-                    "reconciled_by": auditor_zainab_user,
-                    "notes": "All authorized payment instructions match CBN/NIBSS settlement logs with zero discrepancy.",
-                },
-            )
+            ).exists():
+                Reconciliation.objects.create(
+                    reconciliation_period_start=date.today() - timedelta(days=30),
+                    reconciliation_period_end=date.today(),
+                    total_instruction_amount=Decimal("600000.00"),
+                    total_executed_amount=Decimal("600000.00"),
+                    total_adjusted_amount=Decimal("0.00"),
+                    discrepancy_amount=Decimal("0.00"),
+                    status=Reconciliation.Status.BALANCED,
+                    reconciled_by=auditor_zainab_user,
+                    notes="All authorized payment instructions match CBN/NIBSS settlement logs with zero discrepancy.",
+                )
 
             # 7. Clinical Adverse Safety Event
             self.stdout.write("7. Logging patient safety incident...")
@@ -924,6 +980,298 @@ class Command(BaseCommand):
                     "event_description": "Patient developed an acute contrast-induced hypersensitivity reaction during staging CT scan.",
                     "immediate_action_taken": "Immediate intravenous hydrocortisone and chlorpheniramine administered; oxygen therapy maintained until stabilized.",
                     "occurred_at": timezone.now() - timedelta(days=4),
+                },
+            )
+
+            # 8. NDPA 2023 Patient Consent & Cryptographic Audit Ledger
+            self.stdout.write("8. Seeding NDPA 2023 statutory consent & tamper-evident audit ledger...")
+            consent_amina, _ = ConsentAuthorization.objects.get_or_create(
+                patient=p2,
+                purpose=ConsentAuthorization.Purpose.CARE_COORDINATION,
+                defaults={
+                    "granter": patient_amina_user,
+                    "scope": ConsentAuthorization.Scope.ALL_CLINICAL_RECORDS,
+                    "legal_basis": ConsentAuthorization.LegalBasis.CONSENT,
+                    "authorized_organization": nha_org,
+                    "authorized_facility": nha_oncology_fac,
+                    "valid_from": timezone.now() - timedelta(days=15),
+                    "valid_to": timezone.now() + timedelta(days=365),
+                    "status": ConsentAuthorization.Status.ACTIVE,
+                    "consent_document_hash": hashlib.sha256(b"Consent-Amina-Bello-Oncology-2026").hexdigest(),
+                },
+            )
+            ConsentAuthorization.objects.get_or_create(
+                patient=p2,
+                purpose=ConsentAuthorization.Purpose.SUBSIDY_APPLICATION,
+                defaults={
+                    "granter": patient_amina_user,
+                    "scope": ConsentAuthorization.Scope.FINANCIAL_AID_ONLY,
+                    "legal_basis": ConsentAuthorization.LegalBasis.CONSENT,
+                    "valid_from": timezone.now() - timedelta(days=15),
+                    "valid_to": timezone.now() + timedelta(days=365),
+                    "status": ConsentAuthorization.Status.ACTIVE,
+                    "consent_document_hash": hashlib.sha256(b"Consent-Amina-Bello-Subsidy-2026").hexdigest(),
+                },
+            )
+            ConsentAuthorization.objects.get_or_create(
+                patient=p1,
+                purpose=ConsentAuthorization.Purpose.FINANCIAL_DISBURSEMENT,
+                defaults={
+                    "granter": patient_emeka_user,
+                    "scope": ConsentAuthorization.Scope.ALL_CLINICAL_RECORDS,
+                    "legal_basis": ConsentAuthorization.LegalBasis.CONSENT,
+                    "authorized_organization": luth_org,
+                    "authorized_facility": luth_dialysis_fac,
+                    "valid_from": timezone.now() - timedelta(days=30),
+                    "valid_to": timezone.now() + timedelta(days=365),
+                    "status": ConsentAuthorization.Status.ACTIVE,
+                    "consent_document_hash": hashlib.sha256(b"Consent-Emeka-Nwosu-Dialysis-2026").hexdigest(),
+                },
+            )
+            ConsentAuthorization.objects.get_or_create(
+                patient=p3,
+                purpose=ConsentAuthorization.Purpose.CARE_COORDINATION,
+                defaults={
+                    "granter": patient_ibrahim_user,
+                    "scope": ConsentAuthorization.Scope.ALL_CLINICAL_RECORDS,
+                    "legal_basis": ConsentAuthorization.LegalBasis.CONSENT,
+                    "valid_from": timezone.now() - timedelta(days=10),
+                    "valid_to": timezone.now() + timedelta(days=365),
+                    "status": ConsentAuthorization.Status.ACTIVE,
+                    "consent_document_hash": hashlib.sha256(b"Consent-Ibrahim-Danjuma-Cardio-2026").hexdigest(),
+                },
+            )
+            ConsentAuthorization.objects.get_or_create(
+                patient=p4,
+                purpose=ConsentAuthorization.Purpose.CARE_COORDINATION,
+                defaults={
+                    "granter": patient_ngozi_user,
+                    "scope": ConsentAuthorization.Scope.ALL_CLINICAL_RECORDS,
+                    "legal_basis": ConsentAuthorization.LegalBasis.CONSENT,
+                    "valid_from": timezone.now() - timedelta(days=5),
+                    "valid_to": timezone.now() + timedelta(days=365),
+                    "status": ConsentAuthorization.Status.ACTIVE,
+                    "consent_document_hash": hashlib.sha256(b"Consent-Ngozi-Okafor-Diabetes-2026").hexdigest(),
+                },
+            )
+
+            # Cryptographically Chained Audit Events
+            if not AuditEvent.objects.exists():
+                ev1 = AuditLogger.log(
+                    action=AuditEvent.Action.VIEW_PATIENT_RECORD,
+                    resource_type="Patient",
+                    resource_id=str(p2.public_id),
+                    actor=dr_fatima_user,
+                    patient=p2,
+                    description="Clinician accessed oncology biopsy and immunohistochemistry profile.",
+                )
+                ev2 = AuditLogger.log(
+                    action=AuditEvent.Action.VERIFY_CLINICAL_NEED,
+                    resource_type="ClinicalNeed",
+                    resource_id=str(need2.public_id),
+                    actor=dr_fatima_user,
+                    patient=p2,
+                    description="Clinician certified histology confirming infiltrating ductal carcinoma.",
+                )
+                ev3 = AuditLogger.log(
+                    action=AuditEvent.Action.APPROVE_FUNDING,
+                    resource_type="FundingApplication",
+                    resource_id="APP-2026-0001",
+                    actor=director_danladi_user,
+                    patient=p1,
+                    description="Four-Eyes Committee approved NGN 600,000 for renal hemodialysis subsidy.",
+                )
+                AuditLogger.log(
+                    action=AuditEvent.Action.DISBURSE_SETTLEMENT,
+                    resource_type="Payment",
+                    resource_id="PAY-2026-0001",
+                    actor=treasury_femi_user,
+                    patient=p1,
+                    description="NIBSS direct settlement disbursed to LUTH Dialysis Centre TSA account.",
+                )
+
+            # 9. Medication Regimens & Pharmacy Dispensing
+            self.stdout.write("9. Logging clinical medication regimens & anti-counterfeit pharmacy dispensations...")
+            pharm_uche, _ = HealthcareProfessional.objects.get_or_create(
+                user=treasury_femi_user,
+                defaults={
+                    "profession": HealthcareProfessional.Profession.PHARMACIST,
+                    "license_number": "PCN-2026-4412",
+                    "license_status": HealthcareProfessional.LicenseStatus.VERIFIED,
+                    "status": HealthcareProfessional.Status.ACTIVE,
+                    "phone": "+2348039911223",
+                },
+            )
+
+            # Regimen 1: Amina Bello (Trastuzumab Target Biologic)
+            reg1, _ = MedicationRegimen.objects.get_or_create(
+                patient=p2,
+                medication_name="Trastuzumab (Herceptin)",
+                defaults={
+                    "clinical_need": need2,
+                    "prescribed_by": HealthcareProfessional.objects.get(user=dr_fatima_user),
+                    "generic_name": "Trastuzumab",
+                    "dosage": "440 mg IV infusion in 250ml 0.9% NaCl",
+                    "frequency": "Every 21 days for 6 cycles",
+                    "route": MedicationRegimen.Route.INTRAVENOUS,
+                    "total_cycles": 6,
+                    "completed_cycles": 2,
+                    "status": MedicationRegimen.Status.ACTIVE,
+                    "start_date": date(2026, 1, 15),
+                    "protocol_reference": "NCCN-C50-HER2+",
+                    "notes": "Pre-medication with IV hydrocortisone and antihistamines mandatory.",
+                },
+            )
+            PharmacyDispensingLog.objects.get_or_create(
+                regimen=reg1,
+                patient=p2,
+                batch_number="TRZ-BATCH-2026-081",
+                defaults={
+                    "facility": nha_oncology_fac,
+                    "dispensed_by": pharm_uche,
+                    "authorization": auth1,
+                    "medication_name": "Trastuzumab 440mg Lyophilized Powder",
+                    "nafdac_reg_number": "A4-1029",
+                    "expiry_date": date(2027, 4, 30),
+                    "quantity_dispensed": Decimal("1.00"),
+                    "unit_of_measure": "vial",
+                    "cycle_number": 2,
+                    "subsidy_amount_applied": Decimal("250000.00"),
+                    "notes": "Administered under continuous vital signs telemetry.",
+                },
+            )
+
+            # Regimen 2: Emeka Nwosu (Erythropoietin Alpha)
+            reg2, _ = MedicationRegimen.objects.get_or_create(
+                patient=p1,
+                medication_name="Erythropoietin (EPO) Alpha",
+                defaults={
+                    "clinical_need": need1,
+                    "prescribed_by": dr_chidi_prof,
+                    "generic_name": "Epoetin Alfa",
+                    "dosage": "4,000 IU subcutaneous injection",
+                    "frequency": "Twice weekly post-hemodialysis",
+                    "route": MedicationRegimen.Route.SUBCUTANEOUS,
+                    "total_cycles": 24,
+                    "completed_cycles": 8,
+                    "status": MedicationRegimen.Status.ACTIVE,
+                    "start_date": date(2026, 1, 10),
+                    "protocol_reference": "KDIGO-CKD-ANEMIA",
+                    "notes": "Target hemoglobin 10.0–11.5 g/dL.",
+                },
+            )
+            PharmacyDispensingLog.objects.get_or_create(
+                regimen=reg2,
+                patient=p1,
+                batch_number="EPO-LUTH-2026-904",
+                defaults={
+                    "facility": luth_dialysis_fac,
+                    "dispensed_by": pharm_uche,
+                    "authorization": auth1,
+                    "medication_name": "Epoetin Alfa 4000 IU Prefilled Syringe",
+                    "nafdac_reg_number": "B4-5512",
+                    "expiry_date": date(2026, 11, 30),
+                    "quantity_dispensed": Decimal("2.00"),
+                    "unit_of_measure": "prefilled syringe",
+                    "cycle_number": 8,
+                    "subsidy_amount_applied": Decimal("35000.00"),
+                    "notes": "Directly administered in hemodialysis recovery bay.",
+                },
+            )
+
+            # Regimen 3: Ibrahim Danjuma (Cardioprotective Therapy)
+            MedicationRegimen.objects.get_or_create(
+                patient=p3,
+                medication_name="Amlodipine Besylate & Carvedilol Protocol",
+                defaults={
+                    "clinical_need": need3,
+                    "prescribed_by": dr_chidi_prof,
+                    "generic_name": "Amlodipine 10mg / Carvedilol 25mg",
+                    "dosage": "Amlodipine 10mg OD, Carvedilol 12.5mg BD",
+                    "frequency": "Daily maintenance",
+                    "route": MedicationRegimen.Route.ORAL,
+                    "total_cycles": 90,
+                    "completed_cycles": 30,
+                    "status": MedicationRegimen.Status.ACTIVE,
+                    "start_date": date(2026, 1, 20),
+                    "protocol_reference": "ACC/AHA-HTN-2026",
+                },
+            )
+
+            # 10. Outbound Multilingual Telco Notifications & USSD Session
+            self.stdout.write("10. Dispatching multilingual telco notifications & initializing USSD engine...")
+            NotificationService.create_and_send(
+                patient=p2,
+                phone=p2.primary_phone,
+                template_key="SUBSIDY_APPROVED",
+                context={
+                    "amount": Decimal("450000.00"),
+                    "condition": "Infiltrating Ductal Breast Carcinoma",
+                    "token": "AUTH-2026-0002",
+                    "facility": "National Hospital Oncology Complex",
+                },
+                language="EN",
+                case=case2,
+            )
+            NotificationService.create_and_send(
+                patient=p2,
+                phone=p2.primary_phone,
+                template_key="SUBSIDY_APPROVED",
+                context={
+                    "amount": Decimal("450000.00"),
+                    "condition": "Kansar Nono",
+                    "token": "AUTH-2026-0002",
+                    "facility": "Asibitin Kasa na Abuja",
+                },
+                language="HA",
+                case=case2,
+            )
+            NotificationService.create_and_send(
+                patient=p1,
+                phone=p1.primary_phone,
+                template_key="DISPENSING_CONFIRMED",
+                context={
+                    "medication": "Epoetin Alfa 4000 IU",
+                    "batch": "EPO-LUTH-2026-904",
+                    "facility": "LUTH Dialysis Centre",
+                },
+                language="YO",
+                case=case1,
+            )
+            NotificationService.create_and_send(
+                patient=p4,
+                phone=p4.primary_phone,
+                template_key="SUBSIDY_APPROVED",
+                context={
+                    "amount": Decimal("350000.00"),
+                    "condition": "Type 2 Diabetes Mellitus",
+                    "token": "AUTH-2026-0004",
+                    "facility": "University of Nigeria Teaching Hospital",
+                },
+                language="IG",
+            )
+
+            # Active USSD Sessions
+            USSDSession.objects.get_or_create(
+                session_id="USSD-SESS-2026-001",
+                defaults={
+                    "phone_number": p2.primary_phone,
+                    "service_code": "*384*2026#",
+                    "patient": p2,
+                    "current_step": "MAIN_MENU",
+                    "language": "EN",
+                    "is_active": True,
+                },
+            )
+            USSDSession.objects.get_or_create(
+                session_id="USSD-SESS-2026-002",
+                defaults={
+                    "phone_number": p1.primary_phone,
+                    "service_code": "*384*2026#",
+                    "patient": p1,
+                    "current_step": "MAIN_MENU",
+                    "language": "HA",
+                    "is_active": True,
                 },
             )
 

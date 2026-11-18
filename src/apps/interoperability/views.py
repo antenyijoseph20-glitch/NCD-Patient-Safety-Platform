@@ -60,6 +60,45 @@ def fhir_metadata(request):
         "rest": [
             {
                 "mode": "server",
+                "security": {
+                    "cors": True,
+                    "service": [
+                        {
+                            "coding": [
+                                {
+                                    "system": "http://terminology.hl7.org/CodeSystem/restful-security-service",
+                                    "code": "SMART-on-FHIR",
+                                    "display": "SMART-on-FHIR",
+                                }
+                            ],
+                            "text": "OAuth2 using SMART-on-FHIR profile (RFC 6749)",
+                        }
+                    ],
+                    "extension": [
+                        {
+                            "url": "http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris",
+                            "extension": [
+                                {
+                                    "url": "token",
+                                    "valueUri": request.build_absolute_uri("/api/v1/token/"),
+                                },
+                                {
+                                    "url": "authorize",
+                                    "valueUri": request.build_absolute_uri("/api/v1/authorize/"),
+                                },
+                                {
+                                    "url": "register",
+                                    "valueUri": request.build_absolute_uri("/api/v1/register/"),
+                                },
+                                {
+                                    "url": "introspect",
+                                    "valueUri": request.build_absolute_uri("/api/v1/token/introspect/"),
+                                },
+                            ],
+                        }
+                    ],
+                    "description": "Standard SMART on FHIR OAuth2 conformance profile for secure hospital EMR connectivity.",
+                },
                 "resource": [
                     {
                         "type": "Patient",
