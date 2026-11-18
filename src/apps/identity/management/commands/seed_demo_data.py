@@ -7,7 +7,11 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils import timezone
 
-from apps.cases.models import CareSupportCase, CaseAssignment
+from apps.cases.models import (
+    CareSupportCase,
+    CaseAssignment,
+    MentalHealthScreening,
+)
 from apps.clinical_need.models import (
     ClinicalEvidence,
     ClinicalNeed,
@@ -385,6 +389,182 @@ class Command(BaseCommand):
                 },
             )
 
+            # Evidence for Need 1 (Emeka Nwosu - ESRD)
+            ClinicalEvidence.objects.get_or_create(
+                clinical_need=need1,
+                title="Renal Function Panel & Serum Creatinine",
+                defaults={
+                    "evidence_type": ClinicalEvidence.EvidenceType.LABORATORY_REPORT,
+                    "document_reference": "LAB-LUTH-2026-8819",
+                    "sha256_checksum": hashlib.sha256(b"Emeka-Nwosu-eGFR-Panel").hexdigest(),
+                    "issued_by": "LUTH Central Chemical Pathology Laboratory",
+                    "issued_date": date(2026, 1, 10),
+                },
+            )
+            ClinicalEvidence.objects.get_or_create(
+                clinical_need=need1,
+                title="Renal Ultrasonography Examination",
+                defaults={
+                    "evidence_type": ClinicalEvidence.EvidenceType.RADIOLOGY_SCAN,
+                    "document_reference": "RAD-LUTH-2026-0412",
+                    "sha256_checksum": hashlib.sha256(b"Emeka-Nwosu-Renal-Ultrasound").hexdigest(),
+                    "issued_by": "LUTH Department of Radiodiagnosis",
+                    "issued_date": date(2026, 1, 12),
+                },
+            )
+
+            # Mental Health Screening for Case 1
+            MentalHealthScreening.objects.get_or_create(
+                case=case1,
+                screening_tool=MentalHealthScreening.ScreeningTool.PHQ9,
+                defaults={
+                    "patient": p1,
+                    "score": 12,
+                    "severity": MentalHealthScreening.Severity.MODERATE,
+                    "suicidal_ideation_detected": False,
+                    "depression_risk_flag": True,
+                    "psychosocial_support_plan": "Patient experiencing moderate clinical depressive symptoms secondary to dialysis fatigue. Psychosocial counseling initiated.",
+                    "screened_by": nurse_ngozi_user,
+                },
+            )
+            MentalHealthScreening.objects.get_or_create(
+                case=case1,
+                screening_tool=MentalHealthScreening.ScreeningTool.GAD7,
+                defaults={
+                    "patient": p1,
+                    "score": 10,
+                    "severity": MentalHealthScreening.Severity.MODERATE,
+                    "suicidal_ideation_detected": False,
+                    "depression_risk_flag": False,
+                    "psychosocial_support_plan": "Financial and caregiver anxiety addressed through counseling.",
+                    "screened_by": nurse_ngozi_user,
+                },
+            )
+
+            # Evidence for Need 2 (Amina Bello - Breast Carcinoma)
+            ClinicalEvidence.objects.get_or_create(
+                clinical_need=need2,
+                title="Core Needle Biopsy Histopathology Report",
+                defaults={
+                    "evidence_type": ClinicalEvidence.EvidenceType.PATHOLOGY_REPORT,
+                    "document_reference": "PATH-NHA-2026-1192",
+                    "sha256_checksum": hashlib.sha256(b"Amina-Bello-Core-Biopsy").hexdigest(),
+                    "issued_by": "National Hospital Histopathology Department",
+                    "issued_date": date(2026, 1, 15),
+                },
+            )
+            ClinicalEvidence.objects.get_or_create(
+                clinical_need=need2,
+                title="Immunohistochemistry Profile (ER, PR, HER2)",
+                defaults={
+                    "evidence_type": ClinicalEvidence.EvidenceType.PATHOLOGY_REPORT,
+                    "document_reference": "IHC-NHA-2026-3021",
+                    "sha256_checksum": hashlib.sha256(b"Amina-Bello-IHC-Biomarkers").hexdigest(),
+                    "issued_by": "National Hospital Molecular Pathology Lab",
+                    "issued_date": date(2026, 1, 18),
+                },
+            )
+            ClinicalEvidence.objects.get_or_create(
+                clinical_need=need2,
+                title="Bilateral Diagnostic Mammography & Ultrasound",
+                defaults={
+                    "evidence_type": ClinicalEvidence.EvidenceType.RADIOLOGY_SCAN,
+                    "document_reference": "IMG-NHA-2026-9901",
+                    "sha256_checksum": hashlib.sha256(b"Amina-Bello-Mammogram").hexdigest(),
+                    "issued_by": "National Hospital Diagnostic Imaging Wing",
+                    "issued_date": date(2026, 1, 12),
+                },
+            )
+
+            # Mental Health Screening for Case 2
+            MentalHealthScreening.objects.get_or_create(
+                case=case2,
+                screening_tool=MentalHealthScreening.ScreeningTool.PHQ9,
+                defaults={
+                    "patient": p2,
+                    "score": 8,
+                    "severity": MentalHealthScreening.Severity.MILD,
+                    "suicidal_ideation_detected": False,
+                    "depression_risk_flag": False,
+                    "psychosocial_support_plan": "Mild reactive distress following cancer diagnosis. Supportive patient navigation provided.",
+                    "screened_by": dr_fatima_user,
+                },
+            )
+
+            # Patient 3: Ibrahim Danjuma (Cardiovascular Disease)
+            p3, _ = Patient.objects.get_or_create(
+                first_name="Ibrahim",
+                last_name="Danjuma",
+                date_of_birth=date(1968, 5, 20),
+                defaults={
+                    "gender": Patient.Gender.MALE,
+                    "blood_group": Patient.BloodGroup.O_POSITIVE,
+                    "genotype": Patient.Genotype.AA,
+                    "primary_phone": "+2348023456789",
+                    "email": "ibrahim.danjuma@example.ng",
+                    "address": "14 Keffi Close, Kaduna North, Kaduna",
+                },
+            )
+            need3, _ = ClinicalNeed.objects.get_or_create(
+                patient=p3,
+                condition_name="Hypertensive Heart Disease with Congestive Heart Failure",
+                defaults={
+                    "icd10_code": "I11.0",
+                    "severity": ClinicalNeed.Severity.CRITICAL,
+                    "status": ClinicalNeed.Status.VERIFIED,
+                    "clinical_summary": "Hypertensive heart disease with severe left ventricular hypertrophy and NYHA Class III heart failure.",
+                    "diagnosed_date": date(2026, 1, 20),
+                },
+            )
+            case3, _ = CareSupportCase.objects.get_or_create(
+                case_number="CASE-2026-003",
+                defaults={
+                    "patient": p3,
+                    "primary_clinical_need": need3,
+                    "title": "Cardiovascular Therapy & Heart Failure Subsidy",
+                    "description": "Critical care grant for echocardiogram, cardioprotective pharmacotherapy, and cardiac stabilization.",
+                    "priority": CareSupportCase.Priority.EMERGENCY,
+                    "status": CareSupportCase.Status.ASSISTANCE_ACTIVE,
+                },
+            )
+
+            # Patient 4: Ngozi Okafor (Type 2 Diabetes Mellitus)
+            p4, _ = Patient.objects.get_or_create(
+                first_name="Ngozi",
+                last_name="Okafor",
+                date_of_birth=date(1976, 11, 14),
+                defaults={
+                    "gender": Patient.Gender.FEMALE,
+                    "blood_group": Patient.BloodGroup.B_POSITIVE,
+                    "genotype": Patient.Genotype.AS,
+                    "primary_phone": "+2348076543210",
+                    "email": "ngozi.okafor@example.ng",
+                    "address": "22 Ogui Road, Enugu",
+                },
+            )
+            need4, _ = ClinicalNeed.objects.get_or_create(
+                patient=p4,
+                condition_name="Type 2 Diabetes Mellitus with Diabetic Kidney Disease",
+                defaults={
+                    "icd10_code": "E11.2",
+                    "severity": ClinicalNeed.Severity.SEVERE,
+                    "status": ClinicalNeed.Status.VERIFIED,
+                    "clinical_summary": "Uncontrolled diabetes with persistent microalbuminuria (HbA1c 9.8%). Requires analog insulin and SGLT2 inhibitors.",
+                    "diagnosed_date": date(2026, 1, 25),
+                },
+            )
+            case4, _ = CareSupportCase.objects.get_or_create(
+                case_number="CASE-2026-004",
+                defaults={
+                    "patient": p4,
+                    "primary_clinical_need": need4,
+                    "title": "Metabolic Diabetes Care & Renal Protection Subsidy",
+                    "description": "Continuous glucose monitoring and protective therapeutic envelope.",
+                    "priority": CareSupportCase.Priority.HIGH,
+                    "status": CareSupportCase.Status.FUNDING_ELIGIBLE,
+                },
+            )
+
             # 4. Funding Sources & Programmes
             self.stdout.write("4. Configuring institutional funding pools & assistance programmes...")
             src_fmoh, _ = FundingSource.objects.get_or_create(
@@ -398,6 +578,48 @@ class Command(BaseCommand):
                     "disbursed_amount": Decimal("600000.00"),
                     "contact_name": "Director Danladi Yakubu",
                     "contact_email": "ncd-fund@health.gov.ng",
+                },
+            )
+
+            src_who, _ = FundingSource.objects.get_or_create(
+                name="World Health Organization (WHO) NCD Emergency Action Fund",
+                defaults={
+                    "source_type": FundingSource.SourceType.DONOR,
+                    "status": FundingSource.Status.ACTIVE,
+                    "currency_code": "NGN",
+                    "total_allocation": Decimal("350000000.00"),
+                    "allocated_amount": Decimal("15000000.00"),
+                    "disbursed_amount": Decimal("8500000.00"),
+                    "contact_name": "Dr. Matshidiso Moeti / WHO Country Rep",
+                    "contact_email": "afro-ncd@who.int",
+                },
+            )
+
+            src_globalfund, _ = FundingSource.objects.get_or_create(
+                name="The Global Fund for Chronic Disease & Healthcare Equity",
+                defaults={
+                    "source_type": FundingSource.SourceType.DONOR,
+                    "status": FundingSource.Status.ACTIVE,
+                    "currency_code": "NGN",
+                    "total_allocation": Decimal("500000000.00"),
+                    "allocated_amount": Decimal("25000000.00"),
+                    "disbursed_amount": Decimal("12000000.00"),
+                    "contact_name": "Global Fund Geneva Grants Unit",
+                    "contact_email": "grants@theglobalfund.org",
+                },
+            )
+
+            src_gates, _ = FundingSource.objects.get_or_create(
+                name="Bill & Melinda Gates Foundation Global Health Delivery Fund",
+                defaults={
+                    "source_type": FundingSource.SourceType.FOUNDATION,
+                    "status": FundingSource.Status.ACTIVE,
+                    "currency_code": "NGN",
+                    "total_allocation": Decimal("250000000.00"),
+                    "allocated_amount": Decimal("10000000.00"),
+                    "disbursed_amount": Decimal("4500000.00"),
+                    "contact_name": "Africa Health Team",
+                    "contact_email": "health.africa@gatesfoundation.org",
                 },
             )
 
@@ -575,6 +797,100 @@ class Command(BaseCommand):
                     "recommendation": FundingReview.Recommendation.RECOMMEND_APPROVAL,
                     "recommended_amount": Decimal("850000.00"),
                     "review_notes": "Prescription protocol and hospital oncology estimation verified. Ready for committee decision.",
+                },
+            )
+
+            # Application & Direct Payout for Case 3 (Ibrahim Danjuma) -> Direct to National Hospital Abuja
+            prog_cvd, _ = FundingProgramme.objects.get_or_create(
+                name="WHO HEARTS Cardiovascular Emergency Care Initiative",
+                defaults={
+                    "source": src_who,
+                    "description": "Critical care grant for heart failure decompensation and cardiovascular stabilization.",
+                    "budget_limit": Decimal("75000000.00"),
+                    "allocated_amount": Decimal("450000.00"),
+                    "disbursed_amount": Decimal("450000.00"),
+                    "status": FundingProgramme.Status.ACTIVE,
+                    "start_date": date(2026, 1, 1),
+                    "end_date": date(2026, 12, 31),
+                },
+            )
+            app3, _ = FundingApplication.objects.get_or_create(
+                application_number="APP-2026-0003",
+                defaults={
+                    "case": case3,
+                    "programme": prog_cvd,
+                    "applicant_type": FundingApplication.ApplicantType.CASE_OFFICER,
+                    "applied_by": officer_kalu_user,
+                    "requested_amount": Decimal("450000.00"),
+                    "approved_amount": Decimal("450000.00"),
+                    "clinical_justification": "Acute hypertensive heart failure stabilization at National Hospital Abuja Cardiology Unit.",
+                    "status": FundingApplication.Status.APPROVED,
+                    "submitted_at": timezone.now() - timedelta(days=6),
+                },
+            )
+            dec3, _ = FundingDecision.objects.get_or_create(
+                application=app3,
+                defaults={
+                    "decision_maker": director_danladi_user,
+                    "decision": FundingDecision.Decision.APPROVED,
+                    "approved_amount": Decimal("450000.00"),
+                    "conditions": "Direct disbursement to National Hospital Abuja Cardiology Care Unit.",
+                    "decision_notes": "Approved under WHO HEARTS rapid access window.",
+                },
+            )
+            auth3, _ = AssistanceAuthorization.objects.get_or_create(
+                authorization_code="AUTH-2026-0003",
+                defaults={
+                    "decision": dec3,
+                    "case": case3,
+                    "facility": nha_oncology_fac,
+                    "authorized_amount": Decimal("450000.00"),
+                    "disbursed_amount": Decimal("450000.00"),
+                    "valid_from": date.today() - timedelta(days=5),
+                    "valid_to": date.today() + timedelta(days=60),
+                    "status": AssistanceAuthorization.Status.ACTIVE,
+                },
+            )
+            inst3, _ = PaymentInstruction.objects.get_or_create(
+                instruction_reference="INST-2026-0003",
+                defaults={
+                    "authorization": auth3,
+                    "payee_type": PaymentInstruction.PayeeType.HEALTHCARE_FACILITY,
+                    "payee_facility": nha_oncology_fac,
+                    "payee_name": "National Hospital Abuja - Clinical Services",
+                    "bank_name": "Zenith Bank / CBN TSA",
+                    "account_number": "1019283746",
+                    "amount": Decimal("450000.00"),
+                    "authorized_by": treasury_femi_user,
+                    "status": PaymentInstruction.Status.COMPLETED,
+                },
+            )
+            pay3, _ = Payment.objects.get_or_create(
+                payment_reference="PAY-2026-0003",
+                defaults={
+                    "instruction": inst3,
+                    "amount": Decimal("450000.00"),
+                    "payment_method": Payment.PaymentMethod.NIBSS_INSTANT_PAYMENT,
+                    "channel_reference": "NIBSS-NIP-20260214-772109",
+                    "executed_by": officer_kalu_user,
+                    "executed_at": timezone.now() - timedelta(days=2),
+                    "status": Payment.Status.SUCCESSFUL,
+                    "transaction_response": "NIBSS Direct Settlement Confirmed: Account Credited.",
+                },
+            )
+            ServiceEvidence.objects.get_or_create(
+                case=case3,
+                reference_number="INV-NHA-2026-441",
+                defaults={
+                    "payment": pay3,
+                    "facility": nha_oncology_fac,
+                    "evidence_type": ServiceEvidence.EvidenceType.INVOICE,
+                    "amount_claimed": Decimal("450000.00"),
+                    "document_url": "https://vault.health.gov.ng/invoices/INV-NHA-2026-441.pdf",
+                    "sha256_checksum": hashlib.sha256(b"National-Hospital-Abuja-Cardiac-Settlement").hexdigest(),
+                    "verified": True,
+                    "verified_by": dr_fatima_user,
+                    "verified_at": timezone.now() - timedelta(days=1),
                 },
             )
 

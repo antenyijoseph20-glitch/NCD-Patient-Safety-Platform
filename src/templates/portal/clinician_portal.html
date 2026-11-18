@@ -122,6 +122,59 @@
                                 <p class="text-slate-500 mt-1">{{ case.primary_clinical_need.clinical_summary }}</p>
                             </div>
 
+                            <!-- AI Clinical Decision Support Pre-Check -->
+                            {% if case.ai_evaluation %}
+                            <div class="mb-4 p-4 rounded-xl bg-gradient-to-r from-indigo-50 to-sky-50 border border-indigo-200 text-xs">
+                                <div class="flex flex-wrap justify-between items-center gap-2 mb-2">
+                                    <div class="flex items-center gap-1.5 font-bold text-indigo-900">
+                                        <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                        <span>AI Protocol Check: {{ case.ai_evaluation.guideline_applied }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full {% if case.ai_evaluation.compliance_score >= 80 %}bg-emerald-100 text-emerald-800{% else %}bg-amber-100 text-amber-800{% endif %}">
+                                            {{ case.ai_evaluation.compliance_score }}% Protocol Concordance
+                                        </span>
+                                    </div>
+                                </div>
+                                <p class="text-slate-700 mb-2"><strong>Recommendation:</strong> {{ case.ai_evaluation.recommendation }}</p>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] pt-2 border-t border-indigo-100">
+                                    <div>
+                                        <span class="font-semibold text-emerald-700">Satisfied Criteria:</span>
+                                        <ul class="list-disc list-inside text-slate-600 mt-0.5">
+                                            {% for crit in case.ai_evaluation.satisfied_criteria %}
+                                            <li>{{ crit }}</li>
+                                            {% empty %}
+                                            <li class="text-slate-400">Baseline review pending</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold text-amber-700">Pending Diagnostics:</span>
+                                        <ul class="list-disc list-inside text-slate-600 mt-0.5">
+                                            {% for pend in case.ai_evaluation.pending_evidence %}
+                                            <li>{{ pend }}</li>
+                                            {% empty %}
+                                            <li class="text-emerald-600">All protocol diagnostics satisfied</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Psychosocial / Mental Health Screenings -->
+                            {% if case.mental_health_screenings.all %}
+                            <div class="mb-4 p-3 rounded-xl bg-purple-50 border border-purple-200 text-xs flex justify-between items-center">
+                                <div>
+                                    <span class="font-bold text-purple-900">Psychosocial Triage:</span>
+                                    {% for mh in case.mental_health_screenings.all %}
+                                    <span class="ml-2 font-mono text-purple-800">{{ mh.get_screening_tool_display }}: {{ mh.score }} ({{ mh.get_severity_display }})</span>
+                                    {% endfor %}
+                                </div>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-200 text-purple-800">Holistic Care</span>
+                            </div>
+                            {% endif %}
+
                             <!-- In-line Verification Form -->
                             <form method="POST" action="" class="pt-4 border-t border-slate-200 flex flex-col sm:flex-row gap-3">
                                 {% csrf_token %}

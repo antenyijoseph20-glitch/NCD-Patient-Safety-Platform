@@ -17,6 +17,7 @@ from apps.organizations.models import Facility, HealthcareProfessional
 from apps.patients.models import Patient
 from apps.safety.models import SafetyEvent
 
+from .ai_service import ClinicalAIDecisionSupport
 from .serializers import (
     ClinicalEvidenceSerializer,
     ClinicalNeedSerializer,
@@ -67,7 +68,9 @@ def clinician_portal(request):
     search_query = request.GET.get("q", "").strip()
 
     cases_qs = CareSupportCase.objects.select_related("patient", "primary_clinical_need").prefetch_related(
-        "primary_clinical_need__verifications"
+        "primary_clinical_need__verifications",
+        "primary_clinical_need__evidence_records",
+        "mental_health_screenings",
     )
 
     if search_query:
@@ -78,9 +81,16 @@ def clinician_portal(request):
             | cases_qs.filter(primary_clinical_need__condition_name__icontains=search_query)
         )
 
-    pending_cases = cases_qs.filter(
+    pending_cases_qs = cases_qs.filter(
         status__in=[CareSupportCase.Status.OPEN, CareSupportCase.Status.CLINICAL_REVIEW]
     ).order_by("-opened_at")
+
+    pending_cases = list(pending_cases_qs)
+    for c in pending_cases:
+        if c.primary_clinical_need:
+            c.ai_evaluation = ClinicalAIDecisionSupport.evaluate(c.primary_clinical_need)
+        else:
+            c.ai_evaluation = None
 
     verified_cases = cases_qs.filter(
         status__in=[CareSupportCase.Status.FUNDING_ELIGIBLE, CareSupportCase.Status.ASSISTANCE_ACTIVE]

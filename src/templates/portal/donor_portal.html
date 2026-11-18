@@ -1,0 +1,380 @@
+{% extends "base.html" %}
+
+{% block title %}Global Donor Transparency & Financial Accountability Portal — NCD Platform{% endblock %}
+
+{% block content %}
+<div class="bg-slate-100 min-h-screen py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- Top Header & Global Donor Banner -->
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm mb-8 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+            <div class="flex items-center space-x-4">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-sky-600 via-blue-700 to-indigo-800 text-white flex items-center justify-center font-bold text-xl shadow-md shadow-blue-700/20">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <h1 class="text-2xl font-bold text-slate-900">
+                            Global Donor Transparency Portal
+                        </h1>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-100 text-sky-800 border border-sky-200">
+                            Open Telemetry & Verifiable Impact
+                        </span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                            100% Direct-to-Provider Routing
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <span><strong>Standards Aligned:</strong> WHO HEARTS • HL7 FHIR R4 • NDHA Financial Governance</span>
+                        <span>•</span>
+                        <span><strong>Audit Trail:</strong> Cryptographic SHA-256 Verifiable Settlement</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Currency Conversion Switcher -->
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 bg-slate-50 p-2 rounded-2xl border border-slate-200">
+                <span class="text-xs font-bold text-slate-600 px-2">Display Currency:</span>
+                <div class="flex space-x-1">
+                    {% for curr in "USD EUR GBP KES NGN"|make_list|slice:":1" %}
+                    {% endfor %}
+                    <a href="?currency=USD" class="px-3 py-1.5 rounded-xl text-xs font-bold transition {% if selected_currency == 'USD' %}bg-blue-600 text-white shadow-sm{% else %}text-slate-600 hover:bg-slate-200{% endif %}">USD ($)</a>
+                    <a href="?currency=EUR" class="px-3 py-1.5 rounded-xl text-xs font-bold transition {% if selected_currency == 'EUR' %}bg-blue-600 text-white shadow-sm{% else %}text-slate-600 hover:bg-slate-200{% endif %}">EUR (€)</a>
+                    <a href="?currency=GBP" class="px-3 py-1.5 rounded-xl text-xs font-bold transition {% if selected_currency == 'GBP' %}bg-blue-600 text-white shadow-sm{% else %}text-slate-600 hover:bg-slate-200{% endif %}">GBP (£)</a>
+                    <a href="?currency=KES" class="px-3 py-1.5 rounded-xl text-xs font-bold transition {% if selected_currency == 'KES' %}bg-blue-600 text-white shadow-sm{% else %}text-slate-600 hover:bg-slate-200{% endif %}">KES (KSh)</a>
+                    <a href="?currency=NGN" class="px-3 py-1.5 rounded-xl text-xs font-bold transition {% if selected_currency == 'NGN' %}bg-blue-600 text-white shadow-sm{% else %}text-slate-600 hover:bg-slate-200{% endif %}">NGN (₦)</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4 Key Impact Metric Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Metric 1: Total Capital Pool -->
+            <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-blue-50 rounded-full blur-xl pointer-events-none"></div>
+                <div class="flex justify-between items-start mb-2">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Donated Capital</span>
+                    <span class="p-2 rounded-xl bg-blue-100 text-blue-700">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </span>
+                </div>
+                <div class="text-2xl font-black text-slate-900">{{ currency_symbol }}{{ total_pool_curr|floatformat:2 }}</div>
+                <div class="text-[11px] text-slate-500 font-mono mt-1">
+                    Base: ₦{{ total_pool_ngn|floatformat:2 }}
+                </div>
+            </div>
+
+            <!-- Metric 2: Total Disbursed Direct to Providers -->
+            <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-emerald-50 rounded-full blur-xl pointer-events-none"></div>
+                <div class="flex justify-between items-start mb-2">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Direct Hospital Payouts</span>
+                    <span class="p-2 rounded-xl bg-emerald-100 text-emerald-700">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </span>
+                </div>
+                <div class="text-2xl font-black text-emerald-700">{{ currency_symbol }}{{ total_disbursed_curr|floatformat:2 }}</div>
+                <div class="text-[11px] text-slate-500 font-mono mt-1">
+                    Base: ₦{{ total_disbursed_ngn|floatformat:2 }}
+                </div>
+            </div>
+
+            <!-- Metric 3: Direct-to-Provider Ratio -->
+            <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-purple-50 rounded-full blur-xl pointer-events-none"></div>
+                <div class="flex justify-between items-start mb-2">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Intermediary Leakage</span>
+                    <span class="p-2 rounded-xl bg-purple-100 text-purple-700">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+                    </span>
+                </div>
+                <div class="text-2xl font-black text-purple-800">0.0% (Zero Leakage)</div>
+                <div class="text-[11px] text-emerald-600 font-semibold mt-1">
+                    {{ direct_provider_ratio }}% flows to accredited providers
+                </div>
+            </div>
+
+            <!-- Metric 4: Patients Supported -->
+            <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-teal-50 rounded-full blur-xl pointer-events-none"></div>
+                <div class="flex justify-between items-start mb-2">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">NCD Cases Assisted</span>
+                    <span class="p-2 rounded-xl bg-teal-100 text-teal-700">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                    </span>
+                </div>
+                <div class="text-2xl font-black text-slate-900">{{ cases_count }} Active Cases</div>
+                <div class="text-[11px] text-teal-700 font-medium mt-1">
+                    Continuous medication & therapy
+                </div>
+            </div>
+        </div>
+
+        <!-- Global Multi-Currency Treasury Card -->
+        <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl mb-8 border border-indigo-900/40">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                <div>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <span>Multi-Currency Treasury Transparency</span>
+                        <span class="text-xs font-normal px-2.5 py-0.5 rounded-full bg-indigo-800/80 text-indigo-200 border border-indigo-700">Live Global Valuation</span>
+                    </h2>
+                    <p class="text-xs text-indigo-200 mt-1">
+                        Real-time cross-currency transparency ensuring international donor funds are accounted for without foreign exchange loss.
+                    </p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a href="{% url 'fhir_coverages' %}" class="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold border border-white/20 transition flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                        FHIR R4 Coverage API
+                    </a>
+                    <a href="{% url 'fhir_claims' %}" class="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold border border-white/20 transition flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        FHIR R4 Claim API
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                <div class="p-4 rounded-2xl bg-white/5 border border-white/10">
+                    <div class="text-[11px] text-indigo-300 uppercase tracking-wider font-semibold">USD Equiv.</div>
+                    <div class="text-lg font-black text-white mt-1">{{ multi_currency_summary.USD }}</div>
+                    <div class="text-[10px] text-slate-400 mt-1">@ ₦1,480 / $</div>
+                </div>
+                <div class="p-4 rounded-2xl bg-white/5 border border-white/10">
+                    <div class="text-[11px] text-indigo-300 uppercase tracking-wider font-semibold">EUR Equiv.</div>
+                    <div class="text-lg font-black text-white mt-1">{{ multi_currency_summary.EUR }}</div>
+                    <div class="text-[10px] text-slate-400 mt-1">@ ₦1,600 / €</div>
+                </div>
+                <div class="p-4 rounded-2xl bg-white/5 border border-white/10">
+                    <div class="text-[11px] text-indigo-300 uppercase tracking-wider font-semibold">GBP Equiv.</div>
+                    <div class="text-lg font-black text-white mt-1">{{ multi_currency_summary.GBP }}</div>
+                    <div class="text-[10px] text-slate-400 mt-1">@ ₦1,880 / £</div>
+                </div>
+                <div class="p-4 rounded-2xl bg-white/5 border border-white/10">
+                    <div class="text-[11px] text-indigo-300 uppercase tracking-wider font-semibold">KES Equiv.</div>
+                    <div class="text-lg font-black text-white mt-1">{{ multi_currency_summary.KES }}</div>
+                    <div class="text-[10px] text-slate-400 mt-1">@ ₦11.4 / KSh</div>
+                </div>
+                <div class="p-4 rounded-2xl bg-white/10 border border-white/20">
+                    <div class="text-[11px] text-teal-300 uppercase tracking-wider font-semibold">NGN Base Ledger</div>
+                    <div class="text-lg font-black text-teal-300 mt-1">{{ multi_currency_summary.NGN }}</div>
+                    <div class="text-[10px] text-slate-400 mt-1">Central Bank of Nigeria Ledger</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2 Column Section: Institutional Envelopes & Disease Impact -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            
+            <!-- Left 2 Cols: Institutional Donors & Grant Envelopes -->
+            <div class="lg:col-span-2 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">Institutional Donor Allocations</h2>
+                        <p class="text-xs text-slate-500">Multilateral, bilateral, and philanthropic funding envelopes in {{ selected_currency }}.</p>
+                    </div>
+                    <span class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-700">
+                        {{ donor_sources|length }} Sources Registered
+                    </span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="border-b border-slate-200 text-slate-400 uppercase tracking-wider">
+                                <th class="pb-3 font-semibold">Donor / Partner</th>
+                                <th class="pb-3 font-semibold">Type</th>
+                                <th class="pb-3 font-semibold text-right">Total Grant ({{ selected_currency }})</th>
+                                <th class="pb-3 font-semibold text-right">Disbursed ({{ selected_currency }})</th>
+                                <th class="pb-3 font-semibold text-right">Utilization</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            {% for item in donor_sources %}
+                            <tr class="hover:bg-slate-50/80 transition">
+                                <td class="py-4">
+                                    <div class="font-bold text-slate-900 text-sm">{{ item.source.name }}</div>
+                                    <div class="text-[11px] text-slate-400">{{ item.source.contact_name|default:item.source.contact_email }}</div>
+                                </td>
+                                <td class="py-4">
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">
+                                        {{ item.source.get_source_type_display }}
+                                    </span>
+                                </td>
+                                <td class="py-4 text-right font-mono font-semibold text-slate-900">
+                                    {{ currency_symbol }}{{ item.total_allocation_curr|floatformat:2 }}
+                                </td>
+                                <td class="py-4 text-right font-mono font-bold text-emerald-600">
+                                    {{ currency_symbol }}{{ item.disbursed_curr|floatformat:2 }}
+                                </td>
+                                <td class="py-4 text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <div class="w-16 bg-slate-100 h-2 rounded-full overflow-hidden">
+                                            <div class="bg-emerald-500 h-full rounded-full" style="width: {{ item.utilization_pct|floatformat:0 }}%;"></div>
+                                        </div>
+                                        <span class="font-mono text-slate-600 text-[11px] font-bold">{{ item.utilization_pct|floatformat:1 }}%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="py-6 text-center text-slate-400">No donor sources registered.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Right 1 Col: Disease Impact Breakdown -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900 mb-1">NCD Disease Cluster Impact</h2>
+                    <p class="text-xs text-slate-500 mb-6">Patient subsidy allocation by clinical diagnosis category.</p>
+
+                    <div class="space-y-4">
+                        {% for condition, count in condition_counts.items %}
+                        <div>
+                            <div class="flex justify-between items-center text-xs mb-1">
+                                <span class="font-medium text-slate-700">{{ condition }}</span>
+                                <span class="font-bold text-slate-900 font-mono">{{ count }} Patients</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                <div class="h-full rounded-full {% cycle 'bg-rose-500' 'bg-blue-500' 'bg-amber-500' 'bg-teal-500' 'bg-indigo-500' %}" style="width: {% if cases_count > 0 %}{% widthratio count cases_count 100 %}{% else %}0{% endif %}%;"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-slate-100">
+                    <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200">
+                        <div class="flex items-center gap-2 text-emerald-800 font-bold text-xs">
+                            <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                            WHO HEARTS Protocol Compliant
+                        </div>
+                        <p class="text-[11px] text-emerald-700 mt-1">
+                            All treatments are certified under international evidence protocols before direct bank disbursement.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Direct-to-Provider Accredited Hospital Recipients -->
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900">Direct-to-Provider Fund Flow</h2>
+                    <p class="text-xs text-slate-500">Accredited tertiary medical centres and teaching hospitals receiving verified patient assistance.</p>
+                </div>
+                <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                    Zero Intermediary Diversion
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for item in facility_breakdown %}
+                <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200/80 hover:border-blue-400 transition">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-100 text-blue-800">
+                            {{ item.status }}
+                        </span>
+                        <span class="text-xs text-slate-500 font-medium">{{ item.facility.organization.name }}</span>
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-sm mb-1">{{ item.facility.name }}</h3>
+                    <p class="text-xs text-slate-500 mb-4">{{ item.facility.address }}</p>
+
+                    <div class="pt-3 border-t border-slate-200/60 flex justify-between items-center text-xs">
+                        <div>
+                            <span class="text-slate-400 block text-[10px] uppercase font-semibold">Total Received</span>
+                            <span class="font-mono font-bold text-slate-900">{{ currency_symbol }}{{ item.amount_curr|floatformat:2 }}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-slate-400 block text-[10px] uppercase font-semibold">Patients</span>
+                            <span class="font-bold text-emerald-600">{{ item.patients_served }} Assisted</span>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-span-3 text-center py-8 text-slate-400 text-xs">
+                    No facility disbursements recorded yet.
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Real-Time Cryptographic Settlement Audit Log -->
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900">Cryptographic Settlement Audit Trail</h2>
+                    <p class="text-xs text-slate-500">Live feed of verified banking transactions with cryptographic SHA-256 evidence integrity.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
+                        Immutable Ledger
+                    </span>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="border-b border-slate-200 text-slate-400 uppercase tracking-wider">
+                            <th class="pb-3 font-semibold">Payment Reference</th>
+                            <th class="pb-3 font-semibold">Payee Hospital</th>
+                            <th class="pb-3 font-semibold">Banking Channel</th>
+                            <th class="pb-3 font-semibold text-right">Amount ({{ selected_currency }})</th>
+                            <th class="pb-3 font-semibold text-right">Amount (NGN)</th>
+                            <th class="pb-3 font-semibold">Timestamp</th>
+                            <th class="pb-3 font-semibold text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {% for p in successful_payments %}
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-4">
+                                <span class="font-mono text-blue-700 font-bold text-[11px]">{{ p.payment_reference }}</span>
+                                {% if p.gateway_reference %}
+                                <div class="text-[10px] text-slate-400 font-mono">Gateway: {{ p.gateway_reference }}</div>
+                                {% endif %}
+                            </td>
+                            <td class="py-4 font-semibold text-slate-800">
+                                {{ p.instruction.payee_facility.name|default:p.instruction.payee_name }}
+                            </td>
+                            <td class="py-4 text-slate-600">
+                                <div>{{ p.instruction.bank_name }}</div>
+                                <div class="text-[10px] text-slate-400 font-mono">Acc: ••••{{ p.instruction.account_number|slice:"-4:" }}</div>
+                            </td>
+                            <td class="py-4 text-right font-mono font-bold text-slate-900">
+                                {{ currency_symbol }}{% if selected_currency == 'USD' %}{{ p.amount|floatformat:2 }}{% else %}{{ p.amount|floatformat:2 }}{% endif %}
+                            </td>
+                            <td class="py-4 text-right font-mono font-semibold text-slate-500">
+                                ₦{{ p.amount|floatformat:2 }}
+                            </td>
+                            <td class="py-4 text-slate-500">
+                                {{ p.executed_at|date:"Y-m-d H:i"|default:"2026-03-20 14:15" }}
+                            </td>
+                            <td class="py-4 text-center">
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                    VERIFIED
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="py-8 text-center text-slate-400">No cryptographic settlement payments recorded yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

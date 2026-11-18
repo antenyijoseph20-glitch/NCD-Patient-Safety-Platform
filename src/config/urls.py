@@ -9,7 +9,11 @@ from drf_spectacular.views import (
 )
 from rest_framework.routers import DefaultRouter
 
-from apps.cases.views import CareSupportCaseViewSet, CaseAssignmentViewSet
+from apps.cases.views import (
+    CareSupportCaseViewSet,
+    CaseAssignmentViewSet,
+    MentalHealthScreeningViewSet,
+)
 from apps.clinical_need.views import (
     ClinicalEvidenceViewSet,
     ClinicalNeedViewSet,
@@ -21,6 +25,7 @@ from apps.funding.views import (
     FundingApplicationViewSet,
     FundingProgrammeViewSet,
     FundingSourceViewSet,
+    donor_portal,
     funding_portal,
 )
 from apps.identity.views import case_demo, demo_form, eligibility_check, home
@@ -34,6 +39,7 @@ from apps.patients.views import (
     ExternalIdentifierViewSet,
     PatientContactViewSet,
     PatientViewSet,
+    patient_portal,
 )
 from apps.payments.views import (
     PaymentInstructionViewSet,
@@ -77,6 +83,7 @@ router.register("clinical-verifications", ClinicalVerificationViewSet, basename=
 router.register("clinical-evidence", ClinicalEvidenceViewSet, basename="clinical-evidence")
 router.register("cases", CareSupportCaseViewSet, basename="case")
 router.register("case-assignments", CaseAssignmentViewSet, basename="case-assignment")
+router.register("mental-health-screenings", MentalHealthScreeningViewSet, basename="mental-health-screening")
 router.register("safety-events", SafetyEventViewSet, basename="safety-event")
 
 # Team B: Funding, Payments & Financial Governance Stream
@@ -93,12 +100,15 @@ urlpatterns = [
     path("", home, name="home"),
     path("portal/clinician/", clinician_portal, name="clinician_portal"),
     path("portal/funding/", funding_portal, name="funding_portal"),
+    path("portal/donor/", donor_portal, name="donor_portal"),
+    path("portal/patient/", patient_portal, name="patient_portal"),
     path("eligibility-check/", eligibility_check, name="eligibility_check"),
     path("healthz/", health_check, name="health_check"),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
     path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
     path("api/v1/", include(router.urls)),
+    path("api/fhir/", include("apps.interoperability.urls")),
     path("api-auth/", include("rest_framework.urls")),
     path("cases/<int:case_id>/", case_demo, name="case_demo"),
     path("demo-form/", demo_form, name="demo_form"),

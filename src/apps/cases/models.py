@@ -132,3 +132,86 @@ class CaseAssignment(models.Model):
 
     def __str__(self):
         return f"{self.case.case_number} -> {self.assigned_to} ({self.role})"
+
+
+class MentalHealthScreening(models.Model):
+    """
+    Holistic Chronic Care: Psychological and mental health evaluation
+    for people living with chronic noncommunicable diseases.
+    Supports PHQ-9 (Depression) and GAD-7 (Anxiety) standard clinical instruments.
+    """
+    class ScreeningTool(models.TextChoices):
+        PHQ9 = "PHQ9", "Patient Health Questionnaire (PHQ-9) - Depression"
+        GAD7 = "GAD7", "Generalized Anxiety Disorder (GAD-7) - Anxiety"
+
+    class Severity(models.TextChoices):
+        MINIMAL = "MINIMAL", "Minimal / None (Score 0-4)"
+        MILD = "MILD", "Mild (Score 5-9)"
+        MODERATE = "MODERATE", "Moderate (Score 10-14)"
+        MODERATELY_SEVERE = "MODERATELY_SEVERE", "Moderately Severe (Score 15-19)"
+        SEVERE = "SEVERE", "Severe (Score 20+)"
+
+    id = models.BigAutoField(primary_key=True)
+    public_id = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False,
+    )
+
+    case = models.ForeignKey(
+        CareSupportCase,
+        on_delete=models.CASCADE,
+        related_name="mental_health_screenings",
+    )
+    patient = models.ForeignKey(
+        "patients.Patient",
+        on_delete=models.PROTECT,
+        related_name="mental_health_screenings",
+    )
+
+    screening_tool = models.CharField(
+        max_length=20,
+        choices=ScreeningTool.choices,
+        default=ScreeningTool.PHQ9,
+    )
+    score = models.PositiveSmallIntegerField(
+        help_text="Standard clinical score (0-27 for PHQ-9, 0-21 for GAD-7)",
+    )
+    severity = models.CharField(
+        max_length=30,
+        choices=Severity.choices,
+    )
+
+    suicidal_ideation_detected = models.BooleanField(
+        default=False,
+        help_text="Flagged if Question 9 on PHQ-9 evaluates > 0",
+    )
+    depression_risk_flag = models.BooleanField(default=False)
+
+    psychosocial_support_plan = models.TextField(
+        blank=True,
+        default="",
+        help_text="Counselling referral, peer support group, or psycho-oncology liaison",
+    )
+
+    screened_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="conducted_mental_health_screenings",
+    )
+    screened_at = models.DateTimeField(auto_now_add=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "mental_health_screening"
+        ordering = ["-screened_at", "id"]
+        indexes = [
+            models.Index(fields=["case", "screening_tool"]),
+            models.Index(fields=["patient", "severity"]),
+            models.Index(fields=["suicidal_ideation_detected"]),
+        ]
+
+    def __str__(self):
+        return f"{self.screening_tool} ({self.severity}) for {self.patient} - Score: {self.score}"

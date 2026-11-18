@@ -11,6 +11,12 @@
 - [System Architecture & Engineering Streams](#-system-architecture--engineering-streams)
   - [Engineer A: Clinical, Patient & Safety Stream](#1-engineer-a-clinical-patient--safety-stream)
   - [Engineer B: Funding, Payments & Financial Governance Stream](#2-engineer-b-funding-payments--financial-governance-stream)
+- [Global Scale & Interoperability Innovations](#-global-scale--interoperability-innovations)
+  - [HL7 FHIR R4 Interoperability Gateway](#1-hl7-fhir-r4-interoperability-gateway)
+  - [AI Clinical Decision Support Engine](#2-ai-clinical-decision-support-engine)
+  - [Holistic Mental Health & Psychosocial Screening](#3-holistic-mental-health--psychosocial-screening)
+  - [Global Donor Transparency & Multi-Currency Treasury](#4-global-donor-transparency--multi-currency-treasury)
+  - [Offline Accessibility & Low-Bandwidth USSD / Localized SMS](#5-offline-accessibility--low-bandwidth-ussd--localized-sms)
 - [Governance & Integrity Pillars](#-governance--integrity-pillars)
 - [Live Portals & User Experiences](#-live-portals--user-experiences)
 - [Complete REST API Catalog (Swagger/OpenAPI)](#-complete-rest-api-catalog)
@@ -103,6 +109,63 @@ NCD-Patient-Safety-Platform/
 
 ---
 
+## 🌐 Global Scale & Interoperability Innovations
+
+To position the platform as a world-class health solution capable of operating across international health systems and multilateral partnerships (WHO, Global Fund, World Bank), five major global health pillars have been implemented:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                           GLOBAL HEALTH INTEROPERABILITY ARCHITECTURE                           │
+├───────────────────────────────┬────────────────────────────────┬────────────────────────────────┤
+│      HL7 FHIR R4 GATEWAY      │   AI CLINICAL PROTOCOL ENGINE  │     GLOBAL DONOR TELEMETRY     │
+│  Patient • Condition • Claim  │  NCCN • KDIGO • HEARTS • ADA   │  USD • EUR • GBP • KES • NGN   │
+│  CarePlan • DiagnosticReport  │   Concordance Scoring (0-98%)  │  100% Direct-to-Provider Flow  │
+├───────────────────────────────┴────────────────────────────────┴────────────────────────────────┤
+│                  HOLISTIC PSYCHOSOCIAL & OFFLINE LAST-MILE ACCESSIBILITY                        │
+│          PHQ-9 Depression & GAD-7 Anxiety Triage  •  Low-Bandwidth USSD (*384*2026#)            │
+│                 Localized SMS Notifications in English, Hausa, Yorùbá, and Igbo                 │
+└─────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 1. HL7 FHIR R4 Interoperability Gateway
+The platform natively speaks the global language of healthcare interoperability through a standards-compliant **HL7 FHIR R4** gateway under `/api/fhir/`:
+- **`GET /api/fhir/metadata`**: Formal FHIR `CapabilityStatement` declaring supported resource profiles, search parameters, and interaction semantics (`read`, `search-type`).
+- **`GET /api/fhir/Patient`**: FHIR `Patient` resource bundles with official identifiers (NIN, NHIA, MRN), human names, contacts, and telecom channels.
+- **`GET /api/fhir/Condition`**: FHIR `Condition` clinical coding mapped to international ICD-10 codings, verification statuses (`confirmed`, `refuted`), and severity categories.
+- **`GET /api/fhir/CarePlan`**: FHIR `CarePlan` longitudinal management tracking clinical goals, care team participants, and funding statuses.
+- **`GET /api/fhir/Coverage`**: FHIR `Coverage` financial interoperability modeling institutional health subsidy envelopes, policyholders, and beneficiary limits.
+- **`GET /api/fhir/Claim`**: FHIR `Claim` financial adjudication requests directly linked to medical facility invoices and verified service lines.
+- **`GET /api/fhir/DiagnosticReport`**: FHIR `DiagnosticReport` presenting pathology, radiology, and laboratory records with cryptographic SHA-256 integrity checksums.
+- **`GET /api/fhir/AdverseEvent`**: FHIR `AdverseEvent` pharmacovigilance and safety incident reporting aligned with global WHO safety standards.
+
+### 2. AI Clinical Decision Support Engine
+Integrated in `apps.clinical_need.ai_service.ClinicalAIDecisionSupport`, the platform evaluates patient diagnoses, ICD-10 codings, and uploaded clinical evidence against authoritative international guidelines:
+- **NCCN / ESMO International Oncology Guidelines**: Invasive Breast Carcinoma (`C50`). Evaluates core needle biopsy, ER/PR/HER2 immunohistochemistry, mammography, and metastatic staging.
+- **KDIGO Clinical Practice Guideline**: Chronic Kidney Disease & ESRD (`N18`). Evaluates eGFR, serum creatinine, BUN, renal ultrasonography, and hemodialysis prescription.
+- **ACC/AHA & WHO HEARTS Clinical Package**: Cardiovascular Disease & Hypertension (`I11`). Evaluates 12-lead ECG, echocardiogram, BP logs, and lipid panels.
+- **ADA / International Diabetes Federation (IDF) Standards**: Diabetes Mellitus (`E11`). Evaluates HbA1c, fasting plasma glucose, dilated retinal fundoscopy, and urine microalbumin.
+- **Dynamic Protocol Concordance Score (0-98%)**: Generates objective evidence checklists (Satisfied vs. Pending Diagnostics) directly within the Clinician Portal prior to medical verification.
+
+### 3. Holistic Mental Health & Psychosocial Screening
+Recognizing that chronic NCDs severely impact psychological wellbeing, the platform incorporates standard mental health screening instruments (`apps.cases.models.MentalHealthScreening`):
+- **PHQ-9 (Patient Health Questionnaire - 9)**: Clinical depression severity assessment (Score 0-27) with automated Question 9 suicidal ideation detection.
+- **GAD-7 (Generalized Anxiety Disorder - 7)**: Clinical anxiety severity assessment (Score 0-21).
+- **Clinical Triage & Care Routing**: High-risk scores or suicidal ideation flags trigger immediate alerts for the care team, initiating referrals to medical social workers and clinical psychologists.
+
+### 4. Global Donor Transparency & Multi-Currency Treasury
+Dedicated to international funding partners (WHO, Global Fund, Bilateral Donors, Philanthropic Foundations) via `/portal/donor/`:
+- **Real-Time Cross-Currency Conversions**: Treasury balances displayed in **USD ($)**, **EUR (€)**, **GBP (£)**, **KES (KSh)**, and base **NGN (₦)** without foreign exchange loss.
+- **100% Direct-to-Provider Fund Flow**: Complete mathematical proof of zero intermediary diversion—100% of approved patient assistance is disbursed directly to accredited hospital and laboratory accounts.
+- **Disease Cluster Telemetry**: Granular breakdowns of capital utilization across Oncology, Nephrology, Cardiovascular, and Metabolic conditions.
+- **Cryptographic Settlement Audit Trail**: Live ledger of bank-confirmed payments with payment reference hashes and SHA-256 service evidence seals.
+
+### 5. Offline Accessibility & Low-Bandwidth USSD / Localized SMS
+To ensure healthcare equity in rural and resource-constrained communities across Sub-Saharan Africa and LMICs:
+- **Interactive USSD Dialing Simulator (`*384*2026#`)**: Accessible via the Patient Portal (`/portal/patient/`), enabling patients with basic feature phones to check active subsidy balances, verify assigned hospitals, and request callbacks.
+- **Localized Multilingual SMS Alerts**: Automated notification push templates generated in **English**, **Hausa**, **Yorùbá**, and **Asụsụ Igbo**, keeping patients and family caregivers informed in their native languages.
+
+---
+
 ## 🔒 Governance & Integrity Pillars
 
 | Governance Rule | Architectural Enforcement |
@@ -125,24 +188,39 @@ The platform provides dedicated, role-specific interfaces:
 1. **National Aid Landing Page (`/`)**:
    - Public institutional aid portal displaying live platform telemetry (enrolled patients, accredited hospital network, active cases, total subsidy pool).
    - Showcases active disease envelopes (Renal, Oncology, Diabetes, Cardiovascular) and donor trust pillars.
-2. **Hospital & Clinician Portal (`/portal/clinician/`)**:
+2. **Global Donor Transparency Portal (`/portal/donor/`)**:
+   - Real-time institutional donor telemetry with multi-currency conversions (USD, EUR, GBP, KES, NGN).
+   - Verifiable 100% direct-to-provider fund routing (zero intermediary leakage), disease impact distribution, and cryptographic SHA-256 settlement logs.
+3. **Patient & Caregiver Assistance Tracker (`/portal/patient/`)**:
+   - Beneficiary transparency portal for patients and families.
+   - Displays real-time grant balance, hospital disbursements, care team contacts, and holistic mental health status.
+   - Interactive offline simulator for low-bandwidth USSD (`*384*2026#`) and multilingual SMS alerts in English, Hausa, Yorùbá, and Igbo.
+4. **Hospital & Clinician Portal (`/portal/clinician/`)**:
    - Dedicated workspace for licensed medical practitioners (MDCN/NMCN verified).
-   - Review pending cases, certify clinical diagnoses, attach SHA-256 sealed lab evidence, onboard patients, and log adverse safety events.
-3. **Funding & Financial Governance Portal (`/portal/funding/`)**:
+   - Review pending cases with **AI Clinical Protocol Pre-Check** (NCCN, KDIGO, HEARTS, ADA/IDF), certify clinical diagnoses, attach SHA-256 sealed lab evidence, onboard patients, and log adverse safety events.
+5. **Funding & Financial Governance Portal (`/portal/funding/`)**:
    - Dedicated interface for Case Officers, Reviewers, Committee Approvers, and Treasury Officers.
    - Intake applications for verified cases, record committee recommendations, execute Four-Eyes approvals, issue `AssistanceAuthorization` envelopes, generate payment instructions, execute direct settlements, and run 30-day banking reconciliation audits.
-4. **Patient Eligibility Self-Assessment (`/eligibility-check/`)**:
+6. **Patient Eligibility Self-Assessment (`/eligibility-check/`)**:
    - Patient- and caregiver-facing questionnaire matching individuals with active national subsidies.
-5. **Interactive Swagger & ReDoc API Documentation (`/api/docs/` and `/api/redoc/`)**:
+7. **Interactive Swagger & ReDoc API Documentation (`/api/docs/` and `/api/redoc/`)**:
    - Live interactive OpenAPI 3.0 catalog documenting all clinical, patient, safety, funding, and payment endpoints.
-6. **System Administration Desk (`/admin/`)**:
+8. **System Administration Desk (`/admin/`)**:
    - Internal administrative control center with filtered views, search, and audit trails.
 
 ---
 
-## 📡 Complete REST API Catalog
+## 📡 Complete REST & FHIR R4 API Catalog
 
-All endpoints are versioned under `/api/v1/` and documented in Swagger at `/api/docs/`:
+### HL7 FHIR R4 Interoperability Gateway
+- `GET /api/fhir/metadata` — CapabilityStatement metadata & conformance statement
+- `GET /api/fhir/Patient` — FHIR Patient search & bundle export
+- `GET /api/fhir/Condition` — FHIR Condition clinical coding & verification
+- `GET /api/fhir/CarePlan` — FHIR CarePlan longitudinal coordination
+- `GET /api/fhir/Coverage` — FHIR Coverage health assistance financial envelope
+- `GET /api/fhir/Claim` — FHIR Claim itemized hospital reimbursement request
+- `GET /api/fhir/DiagnosticReport` — FHIR DiagnosticReport with SHA-256 checksum seal
+- `GET /api/fhir/AdverseEvent` — FHIR AdverseEvent pharmacovigilance incident report
 
 ### Clinical & Patient Stream (Engineer A)
 - `GET /api/v1/patients/` — List & search patient demographic records
@@ -152,6 +230,7 @@ All endpoints are versioned under `/api/v1/` and documented in Swagger at `/api/
 - `GET /api/v1/clinical-verifications/` — Licensed clinician verification records
 - `GET /api/v1/clinical-evidence/` — Cryptographically sealed medical records
 - `GET /api/v1/cases/` — Care support cases and coordination lifecycles
+- `GET /api/v1/mental-health-screenings/` — PHQ-9 & GAD-7 holistic screening records
 - `GET /api/v1/safety-events/` — Clinical adverse safety incident reporting
 - `GET /api/v1/facilities/` — Accredited hospitals, clinics, and dialysis centres
 - `GET /api/v1/healthcare-professionals/` — Licensed doctor and nurse registry

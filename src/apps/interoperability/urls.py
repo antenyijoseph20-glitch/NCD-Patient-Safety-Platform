@@ -1,0 +1,36 @@
+from django.urls import path
+
+from . import views
+
+urlpatterns = [
+    path("metadata", views.fhir_metadata, name="fhir_metadata"),
+    path("metadata/", views.fhir_metadata, name="fhir_metadata_slash"),
+    path("Patient", views.fhir_patients, name="fhir_patients"),
+    path("Patient/", views.fhir_patients, name="fhir_patients_slash"),
+    path("Patient/<uuid:public_id>", views.fhir_patients, name="fhir_patient_detail"),
+    path("Patient/<uuid:public_id>/", views.fhir_patients, name="fhir_patient_detail_slash"),
+    path("Condition", views.fhir_conditions, name="fhir_conditions"),
+    path("Condition/", views.fhir_conditions, name="fhir_conditions_slash"),
+    path("Condition/<uuid:public_id>", views.fhir_conditions, name="fhir_condition_detail"),
+    path("Condition/<uuid:public_id>/", views.fhir_conditions, name="fhir_condition_detail_slash"),
+    path("CarePlan", views.fhir_careplans, name="fhir_careplans"),
+    path("CarePlan/", views.fhir_careplans, name="fhir_careplans_slash"),
+    path("CarePlan/<uuid:public_id>", views.fhir_careplans, name="fhir_careplan_detail"),
+    path("CarePlan/<uuid:public_id>/", views.fhir_careplans, name="fhir_careplan_detail_slash"),
+    path("DiagnosticReport", views.fhir_diagnostic_reports, name="fhir_diagnostic_reports"),
+    path("DiagnosticReport/", views.fhir_diagnostic_reports, name="fhir_diagnostic_reports_slash"),
+    path("DiagnosticReport/<uuid:public_id>", views.fhir_diagnostic_reports, name="fhir_diagnostic_report_detail"),
+    path("DiagnosticReport/<uuid:public_id>/", views.fhir_diagnostic_reports, name="fhir_diagnostic_report_detail_slash"),
+    path("AdverseEvent", views.fhir_adverse_events, name="fhir_adverse_events"),
+    path("AdverseEvent/", views.fhir_adverse_events, name="fhir_adverse_events_slash"),
+    path("AdverseEvent/<uuid:public_id>", views.fhir_adverse_events, name="fhir_adverse_event_detail"),
+    path("AdverseEvent/<uuid:public_id>/", views.fhir_adverse_events, name="fhir_adverse_event_detail_slash"),
+    path("Coverage", views.fhir_coverages, name="fhir_coverages"),
+    path("Coverage/", views.fhir_coverages, name="fhir_coverages_slash"),
+    path("Coverage/<uuid:public_id>", views.fhir_coverages, name="fhir_coverage_detail"),
+    path("Coverage/<uuid:public_id>/", views.fhir_coverages, name="fhir_coverage_detail_slash"),
+    path("Claim", views.fhir_claims, name="fhir_claims"),
+    path("Claim/", views.fhir_claims, name="fhir_claims_slash"),
+    path("Claim/<uuid:public_id>", views.fhir_claims, name="fhir_claim_detail"),
+    path("Claim/<uuid:public_id>/", views.fhir_claims, name="fhir_claim_detail_slash"),
+]

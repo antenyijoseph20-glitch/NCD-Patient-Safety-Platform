@@ -27,7 +27,7 @@ env.read_env(BASE_DIR.parent / ".env")
 
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 DEBUG = env.bool("DJANGO_DEBUG", default=False)
-ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
+ALLOWED_HOSTS = list(set(env.list("DJANGO_ALLOWED_HOSTS", default=["localhost", "127.0.0.1"]) + ["testserver"]))
 # Application definition
 
 INSTALLED_APPS = [
@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "apps.organizations",
     "apps.funding",
     "apps.payments",
+    "apps.interoperability",
 ]
 
 AUTH_USER_MODEL = "identity.User"
