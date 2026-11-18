@@ -234,3 +234,8 @@ class ExternalIdentifierModelTests(TestCase):
 
         self.patient.delete()
         self.assertEqual(ExternalIdentifier.objects.count(), 0)
+
+    def test_patient_api_list(self):
+        response = self.client.get("/api/v1/patients/")
+        self.assertEqual(response.status_code, 200)
+

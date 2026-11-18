@@ -29,6 +29,9 @@
                     <svg class="w-3.5 h-3.5 mr-1.5 text-teal-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
                     Aligned with Nigeria Digital Health Architecture (NDHA)
                 </span>
+                <a href="/api/docs/" target="_blank" class="hover:text-white flex items-center gap-1.5 transition text-teal-300 font-semibold">
+                    <span>Swagger API</span>
+                </a>
                 <a href="/healthz/" target="_blank" class="hover:text-white flex items-center gap-1.5 transition">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span>System Active & Secure</span>
@@ -57,7 +60,7 @@
                 </div>
 
                 <!-- Navigation Menu -->
-                <nav class="hidden lg:flex items-center space-x-8 text-sm font-semibold text-slate-600">
+                <nav class="hidden xl:flex items-center space-x-7 text-sm font-semibold text-slate-600">
                     <a href="/#how-it-works" class="hover:text-teal-600 transition">How It Works</a>
                     <a href="/#programmes" class="hover:text-teal-600 transition">Assistance Programs</a>
                     <a href="/#trust" class="hover:text-teal-600 transition">Donor Transparency</a>
@@ -66,18 +69,22 @@
                         <span class="w-2 h-2 rounded-full bg-teal-500"></span>
                         Check Eligibility
                     </a>
+                    <a href="/api/docs/" target="_blank" class="hover:text-teal-600 transition text-slate-500">
+                        API Docs
+                    </a>
                 </nav>
 
                 <!-- Portals CTA -->
-                <div class="flex items-center space-x-3">
-                    <a href="{% url 'eligibility_check' %}" class="hidden sm:inline-flex items-center px-4 py-2 rounded-xl border border-slate-300 hover:border-teal-600 text-slate-700 hover:text-teal-700 font-semibold text-sm transition">
-                        Find Assistance
+                <div class="flex items-center space-x-2.5">
+                    <a href="{% url 'funding_portal' %}" class="hidden sm:inline-flex items-center px-3.5 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs border border-indigo-200 transition">
+                        <svg class="w-3.5 h-3.5 mr-1.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Funding & Finance
                     </a>
-                    <a href="{% url 'clinician_portal' %}" class="inline-flex items-center px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-bold text-sm shadow-md shadow-teal-600/25 transition active:scale-95">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <a href="{% url 'clinician_portal' %}" class="inline-flex items-center px-4 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-bold text-xs shadow-md shadow-teal-600/25 transition active:scale-95">
+                        <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
-                        Hospital & Clinician Portal
+                        Clinician Portal
                     </a>
                 </div>
             </div>
@@ -99,42 +106,40 @@
                         <div class="w-9 h-9 rounded-xl bg-teal-500 flex items-center justify-center text-white font-bold">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
                         </div>
-                        <span class="text-xl font-bold text-white tracking-tight">NCD Patient Safety Platform</span>
+                        <span class="text-white text-base font-bold">NCD Patient Safety Platform</span>
                     </div>
-                    <p class="text-slate-400 text-xs leading-relaxed max-w-sm mb-5">
-                        A multi-sectoral health assistance platform designed in partnership with government authorities, international development partners, and accredited health institutions to deliver transparent financial relief and certified care to Nigerians living with chronic diseases.
+                    <p class="text-xs text-slate-400 leading-relaxed max-w-sm mb-4">
+                        A sovereign national health initiative designed to safeguard patients living with chronic noncommunicable diseases. Ensuring verified clinical evidence, direct-to-provider settlement, and zero diversion of humanitarian aid.
                     </p>
-                    <div class="flex items-center space-x-3 text-xs text-slate-500">
-                        <span class="inline-flex items-center text-teal-400 font-medium">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 mr-1.5"></span>
-                            100% Direct-to-Provider Settlement
-                        </span>
-                        <span>•</span>
-                        <span>Zero Cash Intermediaries</span>
+                    <div class="flex items-center space-x-4 text-xs font-semibold text-teal-400">
+                        <a href="{% url 'clinician_portal' %}" class="hover:underline">Hospital Portal &rarr;</a>
+                        <a href="{% url 'funding_portal' %}" class="hover:underline">Funding Governance &rarr;</a>
+                        <a href="/api/docs/" target="_blank" class="hover:underline">OpenAPI Swagger &rarr;</a>
                     </div>
                 </div>
 
                 <!-- Assistance Programs -->
                 <div>
-                    <h4 class="text-white text-xs font-bold uppercase tracking-wider mb-4">Assistance Programs</h4>
+                    <h4 class="text-white text-xs font-bold uppercase tracking-wider mb-4">Assistance Funds</h4>
                     <ul class="space-y-2.5 text-xs">
-                        <li><a href="#programmes" class="hover:text-teal-400 transition">Oncology & Chemotherapy Subsidy</a></li>
-                        <li><a href="#programmes" class="hover:text-teal-400 transition">Renal Dialysis Assistance Fund</a></li>
-                        <li><a href="#programmes" class="hover:text-teal-400 transition">Pediatric Diabetes Emergency Fund</a></li>
-                        <li><a href="#programmes" class="hover:text-teal-400 transition">Cardiovascular Surgery Support</a></li>
-                        <li><a href="#programmes" class="hover:text-teal-400 transition">Chronic Respiratory Therapy</a></li>
+                        <li><a href="/#programmes" class="hover:text-teal-400 transition">Oncology & Chemotherapy Subsidy</a></li>
+                        <li><a href="/#programmes" class="hover:text-teal-400 transition">Renal Dialysis Assistance Fund</a></li>
+                        <li><a href="/#programmes" class="hover:text-teal-400 transition">Pediatric Diabetes Emergency Fund</a></li>
+                        <li><a href="/#programmes" class="hover:text-teal-400 transition">Cardiovascular Surgery Support</a></li>
+                        <li><a href="/#programmes" class="hover:text-teal-400 transition">Chronic Respiratory Therapy</a></li>
                     </ul>
                 </div>
 
                 <!-- Provider Network & Portals -->
                 <div>
-                    <h4 class="text-white text-xs font-bold uppercase tracking-wider mb-4">Provider Network</h4>
+                    <h4 class="text-white text-xs font-bold uppercase tracking-wider mb-4">Portals & Integrations</h4>
                     <ul class="space-y-2.5 text-xs">
                         <li><a href="{% url 'clinician_portal' %}" class="hover:text-teal-400 transition">Hospital & Clinician Portal</a></li>
+                        <li><a href="{% url 'funding_portal' %}" class="hover:text-teal-400 transition">Funding & Governance Portal</a></li>
                         <li><a href="{% url 'clinician_portal' %}#safety-form" class="hover:text-teal-400 transition">Patient Safety Incident Desk</a></li>
                         <li><a href="{% url 'eligibility_check' %}" class="hover:text-teal-400 transition">Patient Eligibility Check</a></li>
-                        <li><a href="/admin/" class="hover:text-teal-400 transition">Institutional Governance (Admin)</a></li>
                         <li><a href="/api/docs/" target="_blank" class="hover:text-teal-400 transition">Interoperability API (Swagger)</a></li>
+                        <li><a href="/admin/" class="hover:text-teal-400 transition">System Administration (Django)</a></li>
                     </ul>
                 </div>
 

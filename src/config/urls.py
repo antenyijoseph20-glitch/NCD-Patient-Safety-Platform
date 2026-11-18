@@ -9,20 +9,39 @@ from drf_spectacular.views import (
 )
 from rest_framework.routers import DefaultRouter
 
-from apps.clinical_need.views import clinician_portal
+from apps.cases.views import CareSupportCaseViewSet, CaseAssignmentViewSet
+from apps.clinical_need.views import (
+    ClinicalEvidenceViewSet,
+    ClinicalNeedViewSet,
+    ClinicalVerificationViewSet,
+    clinician_portal,
+)
 from apps.funding.views import (
     AssistanceAuthorizationViewSet,
     FundingApplicationViewSet,
     FundingProgrammeViewSet,
     FundingSourceViewSet,
+    funding_portal,
 )
 from apps.identity.views import case_demo, demo_form, eligibility_check, home
+from apps.organizations.views import (
+    FacilityViewSet,
+    HealthcareProfessionalViewSet,
+    OrganizationViewSet,
+)
+from apps.patients.views import (
+    CaregiverRelationshipViewSet,
+    ExternalIdentifierViewSet,
+    PatientContactViewSet,
+    PatientViewSet,
+)
 from apps.payments.views import (
     PaymentInstructionViewSet,
     PaymentViewSet,
     ReconciliationViewSet,
     ServiceEvidenceViewSet,
 )
+from apps.safety.views import SafetyEventViewSet
 
 
 def health_check(request):
@@ -44,6 +63,23 @@ def health_check(request):
 
 
 router = DefaultRouter()
+
+# Team A: Clinical, Patient & Safety Stream
+router.register("organizations", OrganizationViewSet, basename="organization")
+router.register("facilities", FacilityViewSet, basename="facility")
+router.register("healthcare-professionals", HealthcareProfessionalViewSet, basename="healthcare-professional")
+router.register("patients", PatientViewSet, basename="patient")
+router.register("patient-contacts", PatientContactViewSet, basename="patient-contact")
+router.register("caregivers", CaregiverRelationshipViewSet, basename="caregiver")
+router.register("external-identifiers", ExternalIdentifierViewSet, basename="external-identifier")
+router.register("clinical-needs", ClinicalNeedViewSet, basename="clinical-need")
+router.register("clinical-verifications", ClinicalVerificationViewSet, basename="clinical-verification")
+router.register("clinical-evidence", ClinicalEvidenceViewSet, basename="clinical-evidence")
+router.register("cases", CareSupportCaseViewSet, basename="case")
+router.register("case-assignments", CaseAssignmentViewSet, basename="case-assignment")
+router.register("safety-events", SafetyEventViewSet, basename="safety-event")
+
+# Team B: Funding, Payments & Financial Governance Stream
 router.register("funding/sources", FundingSourceViewSet, basename="funding-source")
 router.register("funding/programmes", FundingProgrammeViewSet, basename="funding-programme")
 router.register("funding/applications", FundingApplicationViewSet, basename="funding-application")
@@ -56,6 +92,7 @@ router.register("payments/reconciliations", ReconciliationViewSet, basename="rec
 urlpatterns = [
     path("", home, name="home"),
     path("portal/clinician/", clinician_portal, name="clinician_portal"),
+    path("portal/funding/", funding_portal, name="funding_portal"),
     path("eligibility-check/", eligibility_check, name="eligibility_check"),
     path("healthz/", health_check, name="health_check"),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),

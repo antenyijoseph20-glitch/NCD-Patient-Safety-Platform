@@ -274,3 +274,131 @@ class HealthCheckAndAPITests(TestCase):
         results = response.json()
         self.assertTrue(len(results) >= 1)
         self.assertEqual(results[0]["name"], "WHO NCD Assistance Fund")
+
+
+class FundingPortalAndGovernanceTests(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.applicant = User.objects.create_user(username="applicant_officer", password="pass123")
+        self.decision_maker = User.objects.create_user(username="director_approver", password="pass123")
+
+        self.patient = Patient.objects.create(
+            first_name="Zainab",
+            last_name="Aliyu",
+            date_of_birth=date(1982, 4, 12),
+            gender=Patient.Gender.FEMALE,
+        )
+        self.need = ClinicalNeed.objects.create(
+            patient=self.patient,
+            condition_name="Cervical Dysplasia & Oncology Protocol",
+            severity=ClinicalNeed.Severity.SEVERE,
+            status=ClinicalNeed.Status.VERIFIED,
+        )
+        self.org = Organization.objects.create(
+            name="Federal Medical Centre Keffi",
+            organization_type=Organization.OrganizationType.HEALTHCARE_PROVIDER,
+        )
+        self.facility = Facility.objects.create(
+            organization=self.org,
+            name="FMC Oncology Wing",
+            facility_type=Facility.FacilityType.SPECIALIST_CENTRE,
+        )
+        self.prof = HealthcareProfessional.objects.create(
+            user=self.applicant,
+            profession=HealthcareProfessional.Profession.DOCTOR,
+            license_number="MDCN-991188",
+            license_status=HealthcareProfessional.LicenseStatus.VERIFIED,
+        )
+        ClinicalVerification.objects.create(
+            clinical_need=self.need,
+            professional=self.prof,
+            facility=self.facility,
+            status=ClinicalVerification.Status.VERIFIED,
+        )
+        self.case = CareSupportCase.objects.create(
+            case_number="CASE-KEFFI-001",
+            patient=self.patient,
+            primary_clinical_need=self.need,
+            title="Oncology Intervention Subsidy",
+            status=CareSupportCase.Status.FUNDING_ELIGIBLE,
+        )
+        self.source = FundingSource.objects.create(
+            name="Oncology Special Fund",
+            total_allocation=Decimal("20000000.00"),
+        )
+        self.prog = FundingProgramme.objects.create(
+            source=self.source,
+            name="Chemotherapy Grant",
+            budget_limit=Decimal("5000000.00"),
+            start_date=date(2026, 1, 1),
+            end_date=date(2026, 12, 31),
+        )
+
+    def test_funding_portal_get(self):
+        response = self.client.get("/portal/funding/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Funding &amp; Financial Governance Portal")
+        self.assertContains(response, "CASE-KEFFI-001")
+
+    def test_funding_portal_apply_and_four_eyes_approval(self):
+        self.client.force_login(self.applicant)
+        apply_resp = self.client.post(
+            "/portal/funding/",
+            {
+                "action": "apply_funding",
+                "case_id": self.case.id,
+                "programme_id": self.prog.id,
+                "requested_amount": "500000.00",
+                "clinical_justification": "Neoadjuvant chemotherapy sessions.",
+            },
+        )
+        self.assertEqual(apply_resp.status_code, 302)
+        app = FundingApplication.objects.get(case=self.case)
+        self.assertEqual(app.requested_amount, Decimal("500000.00"))
+        self.assertEqual(app.status, FundingApplication.Status.SUBMITTED)
+
+        # Decision with separate user (director_approver)
+        decide_resp = self.client.post(
+            "/portal/funding/",
+            {
+                "action": "decide_application",
+                "application_id": app.id,
+                "decision_maker_id": self.decision_maker.id,
+                "decision": "APPROVED",
+                "approved_amount": "500000.00",
+                "conditions": "Hospital payment only.",
+                "decision_notes": "Approved by Committee.",
+            },
+        )
+        self.assertEqual(decide_resp.status_code, 302)
+        app.refresh_from_db()
+        self.assertEqual(app.status, FundingApplication.Status.APPROVED)
+        self.assertTrue(AssistanceAuthorization.objects.filter(case=self.case).exists())
+
+    def test_four_eyes_violation_fails(self):
+        self.client.force_login(self.applicant)
+        app = FundingApplication.objects.create(
+            application_number="APP-TEST-999",
+            case=self.case,
+            programme=self.prog,
+            applied_by=self.applicant,
+            requested_amount=Decimal("300000.00"),
+            clinical_justification="Radiation therapy",
+            status=FundingApplication.Status.SUBMITTED,
+        )
+        # Attempt to decide with same user who applied
+        resp = self.client.post(
+            "/portal/funding/",
+            {
+                "action": "decide_application",
+                "application_id": app.id,
+                "decision_maker_id": self.applicant.id,  # Same user!
+                "decision": "APPROVED",
+                "approved_amount": "300000.00",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        # Application should not be approved due to Four-Eyes validation error
+        app.refresh_from_db()
+        self.assertEqual(app.status, FundingApplication.Status.SUBMITTED)
+

@@ -5,6 +5,7 @@ from datetime import date
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from rest_framework import permissions, viewsets
 
 from apps.cases.models import CareSupportCase
 from apps.clinical_need.models import (
@@ -15,6 +16,33 @@ from apps.clinical_need.models import (
 from apps.organizations.models import Facility, HealthcareProfessional
 from apps.patients.models import Patient
 from apps.safety.models import SafetyEvent
+
+from .serializers import (
+    ClinicalEvidenceSerializer,
+    ClinicalNeedSerializer,
+    ClinicalVerificationSerializer,
+)
+
+
+class ClinicalNeedViewSet(viewsets.ModelViewSet):
+    queryset = ClinicalNeed.objects.all().select_related("patient").prefetch_related("verifications", "evidence_documents")
+    serializer_class = ClinicalNeedSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    lookup_field = "public_id"
+
+
+class ClinicalVerificationViewSet(viewsets.ModelViewSet):
+    queryset = ClinicalVerification.objects.all().select_related("clinical_need", "professional__user", "facility")
+    serializer_class = ClinicalVerificationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = "public_id"
+
+
+class ClinicalEvidenceViewSet(viewsets.ModelViewSet):
+    queryset = ClinicalEvidence.objects.all().select_related("clinical_need")
+    serializer_class = ClinicalEvidenceSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = "public_id"
 
 
 def clinician_portal(request):
@@ -97,26 +125,25 @@ def clinician_portal(request):
             severity = request.POST.get("severity", SafetyEvent.Severity.MODERATE_HARM)
             description = request.POST.get("description", "").strip()
             immediate_action = request.POST.get("immediate_action", "").strip()
+            case_id = request.POST.get("case_id")
 
             patient = get_object_or_404(Patient, id=patient_id)
-            user_reporter = clinician.user if clinician else request.user
-
-            ref_code = f"SAFE-{date.today().year}-{uuid.uuid4().hex[:6].upper()}"
+            case = CareSupportCase.objects.filter(id=case_id).first() if case_id else None
 
             SafetyEvent.objects.create(
-                reference_code=ref_code,
                 patient=patient,
-                reported_by=user_reporter,
+                case=case,
                 facility=active_facility,
+                reported_by=clinician.user if clinician else None,
+                event_type=SafetyEvent.EventType.ADVERSE_EVENT,
                 severity=severity,
-                event_description=description,
-                immediate_action_taken=immediate_action,
-                occurred_at=timezone.now(),
+                description=description,
+                immediate_action=immediate_action,
+                reported_at=timezone.now(),
             )
-
             messages.warning(
                 request,
-                f"Adverse safety event {ref_code} logged and triaged for clinical audit.",
+                f"Adverse clinical safety event logged for {patient}. Safety investigation initiated.",
             )
             return redirect("clinician_portal")
 

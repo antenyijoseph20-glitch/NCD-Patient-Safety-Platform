@@ -1,0 +1,591 @@
+{% extends "base.html" %}
+
+{% block title %}Funding & Financial Governance Portal — NCD Patient Safety Platform{% endblock %}
+
+{% block content %}
+<div class="bg-slate-100 min-h-screen py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Governance Context & Officer Bar -->
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div class="flex items-center space-x-4">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-700 via-purple-700 to-teal-600 text-white flex items-center justify-center font-bold text-xl shadow-md shadow-indigo-700/20">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <h1 class="text-2xl font-bold text-slate-900">
+                            Funding & Financial Governance Portal
+                        </h1>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-800 border border-indigo-200">
+                            Team B Stream
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <span><strong>Officer:</strong> {{ current_user.get_full_name|default:current_user.username }}</span>
+                        <span>•</span>
+                        <span><strong>Governance:</strong> Four-Eyes Principle Enforced</span>
+                        <span>•</span>
+                        <span><strong>Clearing Gateway:</strong> NIBSS Instant Payment (NIP) / Direct Settlement</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Quick Action Shortcuts -->
+            <div class="flex items-center space-x-3 w-full md:w-auto">
+                <a href="#new-app-section" class="w-full md:w-auto px-4 py-2.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 font-bold text-xs flex items-center justify-center gap-1.5 transition">
+                    <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Apply for Assistance
+                </a>
+                <a href="#reconcile-section" class="w-full md:w-auto px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs flex items-center justify-center transition">
+                    Audit Ledger
+                </a>
+                <a href="/" class="w-full md:w-auto px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs flex items-center justify-center transition">
+                    &larr; Exit
+                </a>
+            </div>
+        </div>
+
+        <!-- Flash Messages -->
+        {% if messages %}
+        <div class="mb-8 space-y-3">
+            {% for message in messages %}
+            <div class="p-4 rounded-2xl text-sm font-semibold flex items-center gap-3 border {% if message.tags == 'success' %}bg-emerald-50 text-emerald-800 border-emerald-200{% else %}bg-amber-50 text-amber-800 border-amber-200{% endif %}">
+                <svg class="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                <span>{{ message }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Financial Telemetry Metric Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+            <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm">
+                <div class="flex items-center justify-between text-slate-500 mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider">Total Funding Pool</span>
+                    <span class="p-2 bg-teal-50 text-teal-600 rounded-xl">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                    </span>
+                </div>
+                <div class="text-2xl font-extrabold text-slate-900">NGN {{ total_pool|floatformat:2 }}</div>
+                <div class="text-[11px] text-slate-500 mt-1">{{ active_programmes_count }} Active Assistance Programmes</div>
+            </div>
+
+            <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm">
+                <div class="flex items-center justify-between text-slate-500 mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider">Directly Disbursed</span>
+                    <span class="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    </span>
+                </div>
+                <div class="text-2xl font-extrabold text-emerald-600">NGN {{ total_disbursed|floatformat:2 }}</div>
+                <div class="text-[11px] text-slate-500 mt-1">Direct to Hospitals & Pharmacies</div>
+            </div>
+
+            <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm">
+                <div class="flex items-center justify-between text-slate-500 mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider">Active Authorizations</span>
+                    <span class="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    </span>
+                </div>
+                <div class="text-2xl font-extrabold text-slate-900">{{ active_auths_count }} Envelopes</div>
+                <div class="text-[11px] text-slate-500 mt-1">Remaining: NGN {{ total_authorized_balance|floatformat:2 }}</div>
+            </div>
+
+            <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm">
+                <div class="flex items-center justify-between text-slate-500 mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider">Four-Eyes Pending</span>
+                    <span class="p-2 bg-amber-50 text-amber-600 rounded-xl">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </span>
+                </div>
+                <div class="text-2xl font-extrabold text-amber-600">{{ pending_apps_count }} Apps</div>
+                <div class="text-[11px] text-slate-500 mt-1">{{ pending_instructions_count }} Instructions awaiting settlement</div>
+            </div>
+        </div>
+
+        <!-- SECTION 1: Applications & Four-Eyes Governance Decisions -->
+        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden mb-10">
+            <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-indigo-500"></span>
+                        Funding Assistance Applications & Committee Review
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Formal funding requests linked directly to clinically verified cases</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <form method="GET" action="" class="flex items-center">
+                        <input type="text" name="q" value="{{ search_q }}" placeholder="Search application or case..." class="px-3 py-1.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </form>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-600">
+                    <thead class="bg-slate-50 text-slate-400 font-bold uppercase tracking-wider border-b border-slate-100">
+                        <tr>
+                            <th class="py-3.5 px-6">App Number</th>
+                            <th class="py-3.5 px-6">Case & Patient</th>
+                            <th class="py-3.5 px-6">Programme</th>
+                            <th class="py-3.5 px-6">Requested</th>
+                            <th class="py-3.5 px-6">Approved</th>
+                            <th class="py-3.5 px-6">Applicant</th>
+                            <th class="py-3.5 px-6">Status</th>
+                            <th class="py-3.5 px-6 text-right">Four-Eyes Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {% for app in applications %}
+                        <tr class="hover:bg-slate-50/70 transition">
+                            <td class="py-4 px-6 font-bold text-slate-900 font-mono">{{ app.application_number }}</td>
+                            <td class="py-4 px-6">
+                                <div class="font-bold text-slate-800">{{ app.case.case_number }}</div>
+                                <div class="text-[11px] text-slate-500">{{ app.case.patient }} ({{ app.case.primary_clinical_need.condition_name }})</div>
+                            </td>
+                            <td class="py-4 px-6">
+                                <span class="font-semibold text-slate-700">{{ app.programme.name|default:"General NCD Fund" }}</span>
+                            </td>
+                            <td class="py-4 px-6 font-bold text-slate-900">
+                                {{ app.currency_code }} {{ app.requested_amount|floatformat:2 }}
+                            </td>
+                            <td class="py-4 px-6 font-bold {% if app.approved_amount %}text-emerald-600{% else %}text-slate-400{% endif %}">
+                                {% if app.approved_amount %}
+                                    {{ app.currency_code }} {{ app.approved_amount|floatformat:2 }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td class="py-4 px-6 text-[11px] text-slate-500">
+                                {{ app.applied_by.username }}
+                            </td>
+                            <td class="py-4 px-6">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold
+                                    {% if app.status == 'APPROVED' %}bg-emerald-100 text-emerald-800 border border-emerald-200
+                                    {% elif app.status == 'UNDER_REVIEW' %}bg-amber-100 text-amber-800 border border-amber-200
+                                    {% elif app.status == 'DECLINED' %}bg-rose-100 text-rose-800 border border-rose-200
+                                    {% else %}bg-indigo-100 text-indigo-800 border border-indigo-200{% endif %}">
+                                    {{ app.get_status_display }}
+                                </span>
+                            </td>
+                            <td class="py-4 px-6 text-right space-x-2">
+                                {% if app.status in 'SUBMITTED,UNDER_REVIEW' %}
+                                    <!-- Decision Modal Trigger -->
+                                    <button onclick="document.getElementById('decision-modal-{{ app.id }}').classList.remove('hidden')" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[11px] transition shadow-sm">
+                                        Decide (Four-Eyes)
+                                    </button>
+                                    <button onclick="document.getElementById('review-modal-{{ app.id }}').classList.remove('hidden')" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] transition">
+                                        Add Review
+                                    </button>
+                                {% else %}
+                                    <span class="text-xs text-slate-400 font-semibold">Completed</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+
+                        <!-- Decision Modal (Four-Eyes Enforcement) -->
+                        <div id="decision-modal-{{ app.id }}" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+                            <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-slate-200 shadow-2xl">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="text-lg font-bold text-slate-900">Four-Eyes Committee Decision</h3>
+                                    <button onclick="document.getElementById('decision-modal-{{ app.id }}').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">&times;</button>
+                                </div>
+                                <p class="text-xs text-slate-500 mb-4">
+                                    Authorizing decision for <strong>{{ app.application_number }}</strong> (Case: {{ app.case.case_number }}).
+                                    Applicant was <span class="font-mono font-bold text-slate-700">{{ app.applied_by.username }}</span>.
+                                </p>
+                                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3 mb-4 text-[11px] text-amber-800">
+                                    ⚠️ <strong>Four-Eyes Rule:</strong> To prevent financial diversion, the decision maker <em>cannot</em> be the applicant (<strong>{{ app.applied_by.username }}</strong>).
+                                </div>
+
+                                <form method="POST" action="">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="decide_application">
+                                    <input type="hidden" name="application_id" value="{{ app.id }}">
+
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 mb-1">Decision Maker Identity</label>
+                                            <select name="decision_maker_id" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-indigo-500">
+                                                {% for user in all_users %}
+                                                    <option value="{{ user.id }}" {% if user.id != app.applied_by.id and forloop.first %}selected{% endif %}>
+                                                        {{ user.get_full_name|default:user.username }} ({{ user.username }}) {% if user.id == app.applied_by.id %}[Applicant - Will fail governance]{% endif %}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+
+                                        <div class="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label class="block text-xs font-bold text-slate-700 mb-1">Decision</label>
+                                                <select name="decision" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs">
+                                                    <option value="APPROVED">Approved</option>
+                                                    <option value="PARTIALLY_APPROVED">Partially Approved</option>
+                                                    <option value="DECLINED">Declined</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-bold text-slate-700 mb-1">Approved Amount (NGN)</label>
+                                                <input type="number" step="0.01" name="approved_amount" value="{{ app.requested_amount }}" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold">
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 mb-1">Conditions / Subsidy Restrictions</label>
+                                            <input type="text" name="conditions" placeholder="e.g. Restricted strictly to hemodialysis and erythropoietin." class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs">
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 mb-1">Decision Notes & Minutes</label>
+                                            <textarea name="decision_notes" rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs" placeholder="Recorded by the National Financial Governance Committee."></textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-6 flex justify-end space-x-3">
+                                        <button type="button" onclick="document.getElementById('decision-modal-{{ app.id }}').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-semibold text-xs">Cancel</button>
+                                        <button type="submit" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md">Confirm & Issue Authorization</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Review Modal -->
+                        <div id="review-modal-{{ app.id }}" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+                            <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-slate-200 shadow-2xl">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="text-lg font-bold text-slate-900">Record Operational Review</h3>
+                                    <button onclick="document.getElementById('review-modal-{{ app.id }}').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">&times;</button>
+                                </div>
+                                <form method="POST" action="">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="review_application">
+                                    <input type="hidden" name="application_id" value="{{ app.id }}">
+
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 mb-1">Recommendation</label>
+                                            <select name="recommendation" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs">
+                                                <option value="RECOMMEND_APPROVAL">Recommend Approval</option>
+                                                <option value="RECOMMEND_PARTIAL">Recommend Partial Approval</option>
+                                                <option value="RECOMMEND_REJECTION">Recommend Rejection</option>
+                                                <option value="REQUEST_MORE_INFO">Request More Information</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 mb-1">Recommended Amount (NGN)</label>
+                                            <input type="number" step="0.01" name="recommended_amount" value="{{ app.requested_amount }}" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 mb-1">Review Assessment Notes</label>
+                                            <textarea name="review_notes" rows="3" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs" placeholder="Reviewer comments regarding diagnosis verification and need urgency."></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="mt-6 flex justify-end space-x-3">
+                                        <button type="button" onclick="document.getElementById('review-modal-{{ app.id }}').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-semibold text-xs">Cancel</button>
+                                        <button type="submit" class="px-5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-md">Record Review</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="py-8 text-center text-slate-400 font-semibold">
+                                No funding applications recorded. Clinically verified cases ready for funding are listed below.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SECTION 2: Apply for Funding on Clinically Eligible Cases -->
+        <div id="new-app-section" class="bg-gradient-to-br from-indigo-900 via-slate-900 to-teal-950 rounded-3xl p-6 sm:p-8 text-white mb-10 shadow-xl border border-indigo-800/40">
+            <div class="max-w-3xl mb-6">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30 uppercase tracking-wider mb-2">
+                    Pre-Funding Eligibility Gate
+                </span>
+                <h3 class="text-xl font-extrabold text-white">Intake: Submit Assistance Application</h3>
+                <p class="text-xs text-slate-300 mt-1">
+                    In compliance with our clinical governance contract, assistance applications can <em>only</em> be submitted for cases verified by an accredited clinician.
+                </p>
+            </div>
+
+            {% if eligible_cases %}
+            <form method="POST" action="" class="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="apply_funding">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                    <div class="lg:col-span-2">
+                        <label class="block text-xs font-bold text-teal-200 mb-1">Clinically Eligible Case</label>
+                        <select name="case_id" required class="w-full px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700 text-white text-xs focus:ring-2 focus:ring-teal-400">
+                            {% for case in eligible_cases %}
+                                <option value="{{ case.id }}">
+                                    {{ case.case_number }} — {{ case.patient }} ({{ case.primary_clinical_need.condition_name }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-teal-200 mb-1">Assistance Programme</label>
+                        <select name="programme_id" required class="w-full px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700 text-white text-xs focus:ring-2 focus:ring-teal-400">
+                            {% for prog in programmes %}
+                                <option value="{{ prog.id }}">
+                                    {{ prog.name }} (Cap: NGN {{ prog.budget_limit|floatformat:0 }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-teal-200 mb-1">Requested Amount (NGN)</label>
+                        <input type="number" step="0.01" name="requested_amount" placeholder="e.g. 350000.00" required class="w-full px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700 text-white text-xs font-bold">
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-xs font-bold text-teal-200 mb-1">Clinical & Socioeconomic Justification</label>
+                    <textarea name="clinical_justification" rows="2" required placeholder="Detail the medical urgency, prescribed treatment protocol, and indigent status of the patient." class="w-full px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-700 text-white text-xs"></textarea>
+                </div>
+
+                <div class="flex justify-between items-center">
+                    <span class="text-[11px] text-teal-300/80">Submitted under applicant identity: <strong>{{ current_user.username }}</strong></span>
+                    <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-bold text-xs shadow-lg shadow-teal-500/25 transition">
+                        Submit Funding Application &rarr;
+                    </button>
+                </div>
+            </form>
+            {% else %}
+            <div class="p-6 rounded-2xl bg-white/5 border border-white/10 text-center">
+                <p class="text-sm text-teal-200 font-semibold">No cases currently awaiting funding applications.</p>
+                <p class="text-xs text-slate-400 mt-1">To verify patients and generate eligible cases, use the <a href="{% url 'clinician_portal' %}" class="underline text-teal-300">Hospital & Clinician Portal</a>.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- SECTION 3: Active Assistance Authorizations & Payment Instructions -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+            <!-- Active Authorizations -->
+            <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                        Active Assistance Authorizations
+                    </h3>
+                    <span class="text-xs text-slate-500">{{ authorizations.count }} Active</span>
+                </div>
+                <div class="space-y-3 max-h-96 overflow-y-auto pr-1">
+                    {% for auth in authorizations %}
+                    <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-white transition">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="font-mono font-bold text-indigo-700 text-xs">{{ auth.authorization_code }}</span>
+                                <div class="text-xs font-bold text-slate-800 mt-0.5">{{ auth.case.patient }} ({{ auth.case.case_number }})</div>
+                                <div class="text-[11px] text-slate-500">Accredited: {{ auth.facility.name|default:"Designated Provider" }}</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs font-bold text-slate-900">Cap: NGN {{ auth.authorized_amount|floatformat:2 }}</div>
+                                <div class="text-[11px] font-bold text-emerald-600">Balance: NGN {{ auth.remaining_balance|floatformat:2 }}</div>
+                            </div>
+                        </div>
+                        <div class="mt-3 pt-3 border-t border-slate-200 flex justify-between items-center text-[10px] text-slate-500">
+                            <span>Valid: {{ auth.valid_from }} to {{ auth.valid_to }}</span>
+                            <button onclick="document.getElementById('instruct-modal-{{ auth.id }}').classList.remove('hidden')" class="px-3 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-[11px] transition">
+                                Issue Payment Instruction &rarr;
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Payment Instruction Modal -->
+                    <div id="instruct-modal-{{ auth.id }}" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+                        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-slate-200 shadow-2xl">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-bold text-slate-900">Issue Payment Instruction</h3>
+                                <button onclick="document.getElementById('instruct-modal-{{ auth.id }}').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">&times;</button>
+                            </div>
+                            <p class="text-xs text-slate-500 mb-3">
+                                Mandate against authorization <strong>{{ auth.authorization_code }}</strong>.
+                                Available balance: <strong class="text-emerald-700">NGN {{ auth.remaining_balance|floatformat:2 }}</strong>.
+                            </p>
+                            <form method="POST" action="">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="create_payment_instruction">
+                                <input type="hidden" name="authorization_id" value="{{ auth.id }}">
+
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 mb-1">Authorizing Finance Officer</label>
+                                        <select name="authorizer_id" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs">
+                                            {% for user in all_users %}
+                                                <option value="{{ user.id }}" {% if user.id != auth.decision.decision_maker_id and forloop.first %}selected{% endif %}>
+                                                    {{ user.get_full_name|default:user.username }} {% if user.id == auth.decision.decision_maker_id %}[Decision Maker - Will fail governance]{% endif %}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 mb-1">Payee Type</label>
+                                            <select name="payee_type" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs">
+                                                <option value="HEALTHCARE_FACILITY">Healthcare Facility</option>
+                                                <option value="PHARMACY">Pharmacy Provider</option>
+                                                <option value="DIAGNOSTIC_CENTRE">Diagnostic Centre</option>
+                                                <option value="PATIENT_ACCOUNT">Patient Verified Account</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 mb-1">Amount (NGN)</label>
+                                            <input type="number" step="0.01" name="amount" value="{{ auth.remaining_balance }}" max="{{ auth.remaining_balance }}" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 mb-1">Beneficiary Name</label>
+                                        <input type="text" name="payee_name" value="{{ auth.facility.name }}" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs">
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 mb-1">Bank Name</label>
+                                            <input type="text" name="bank_name" value="First Bank of Nigeria / NIBSS" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 mb-1">NUBAN Account Number</label>
+                                            <input type="text" name="account_number" value="2034981120" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-mono">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-6 flex justify-end space-x-3">
+                                    <button type="button" onclick="document.getElementById('instruct-modal-{{ auth.id }}').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-semibold text-xs">Cancel</button>
+                                    <button type="submit" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md">Authorize Instruction</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-xs text-slate-400 py-4 text-center">No active authorizations. Approve applications above to issue envelopes.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Payment Instructions & Execution -->
+            <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
+                        Payment Instructions & Settlement
+                    </h3>
+                    <span class="text-xs text-slate-500">{{ payment_instructions.count }} Total</span>
+                </div>
+                <div class="space-y-3 max-h-96 overflow-y-auto pr-1">
+                    {% for inst in payment_instructions %}
+                    <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-white transition">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="font-mono font-bold text-slate-900 text-xs">{{ inst.instruction_reference }}</span>
+                                <div class="text-xs font-bold text-slate-800 mt-0.5">Payee: {{ inst.payee_name }}</div>
+                                <div class="text-[11px] text-slate-500">{{ inst.bank_name }} • {{ inst.account_number }}</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs font-extrabold text-slate-900">NGN {{ inst.amount|floatformat:2 }}</div>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold mt-1
+                                    {% if inst.status == 'COMPLETED' %}bg-emerald-100 text-emerald-800
+                                    {% elif inst.status == 'PENDING' %}bg-amber-100 text-amber-800
+                                    {% else %}bg-slate-100 text-slate-700{% endif %}">
+                                    {{ inst.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 pt-3 border-t border-slate-200 flex justify-between items-center text-[10px] text-slate-500">
+                            <span>Authorized by: <strong>{{ inst.authorized_by.username }}</strong></span>
+                            {% if inst.status == 'PENDING' %}
+                            <form method="POST" action="" class="inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="execute_payment">
+                                <input type="hidden" name="instruction_id" value="{{ inst.id }}">
+                                <button type="submit" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition shadow-sm">
+                                    Execute Settlement (NIP) &rarr;
+                                </button>
+                            </form>
+                            {% else %}
+                            <span class="text-emerald-700 font-bold">Settled & Verified</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-xs text-slate-400 py-4 text-center">No payment instructions generated yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 4: Financial Reconciliation & Banking Settlement Audits -->
+        <div id="reconcile-section" class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-teal-500"></span>
+                        Periodic Financial Reconciliation & Audit Trail
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Automated comparison of authorized payment mandates against bank settlement responses</p>
+                </div>
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="run_reconciliation">
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1.5 transition">
+                        <svg class="w-4 h-4 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        Execute 30-Day Audit
+                    </button>
+                </form>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-600">
+                    <thead class="bg-slate-50 text-slate-400 font-bold uppercase tracking-wider border-b border-slate-100">
+                        <tr>
+                            <th class="py-3 px-4">Period</th>
+                            <th class="py-3 px-4">Total Instructions</th>
+                            <th class="py-3 px-4">Total Executed</th>
+                            <th class="py-3 px-4">Discrepancy</th>
+                            <th class="py-3 px-4">Audited By</th>
+                            <th class="py-3 px-4">Audit Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {% for rec in recent_reconciliations %}
+                        <tr>
+                            <td class="py-3.5 px-4 font-semibold text-slate-800">{{ rec.reconciliation_period_start }} to {{ rec.reconciliation_period_end }}</td>
+                            <td class="py-3.5 px-4 font-mono font-bold">NGN {{ rec.total_instruction_amount|floatformat:2 }}</td>
+                            <td class="py-3.5 px-4 font-mono font-bold text-emerald-600">NGN {{ rec.total_executed_amount|floatformat:2 }}</td>
+                            <td class="py-3.5 px-4 font-mono font-bold {% if rec.discrepancy_amount != 0 %}text-rose-600{% else %}text-slate-400{% endif %}">
+                                NGN {{ rec.discrepancy_amount|floatformat:2 }}
+                            </td>
+                            <td class="py-3.5 px-4 text-slate-600">{{ rec.reconciled_by.username }}</td>
+                            <td class="py-3.5 px-4">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold
+                                    {% if rec.status == 'BALANCED' %}bg-emerald-100 text-emerald-800 border border-emerald-200
+                                    {% else %}bg-rose-100 text-rose-800 border border-rose-200{% endif %}">
+                                    {{ rec.get_status_display }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="py-6 text-center text-slate-400 font-semibold">
+                                No reconciliation audits recorded yet. Click "Execute 30-Day Audit" to reconcile platform disbursements.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
